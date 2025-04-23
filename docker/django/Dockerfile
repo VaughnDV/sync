@@ -28,5 +28,11 @@ RUN poetry install --no-interaction --no-ansi
 ENV PYTHONPATH=/app/src
 ENV PYTHONUNBUFFERED=1
 
+# Create a script to run migrations and start the server
+RUN echo '#!/bin/bash\n\
+poetry run python src/manage.py migrate\n\
+poetry run python src/manage.py runserver 0.0.0.0:8000' > /app/start.sh && \
+chmod +x /app/start.sh
+
 # Run the application
-CMD ["poetry", "run", "python", "src/manage.py", "runserver", "0.0.0.0:8000"] 
+CMD ["/app/start.sh"] 
