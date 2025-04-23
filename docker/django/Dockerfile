@@ -11,18 +11,22 @@ RUN apt-get update && apt-get install -y \
 # Install Poetry
 RUN pip install poetry
 
-# Copy project files
+# Copy dependency files
 COPY pyproject.toml poetry.lock* ./
 
-# Install dependencies
+# Configure Poetry
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+    && poetry install --no-interaction --no-ansi --no-root
 
 # Copy the rest of the application
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Install the project in development mode
+RUN poetry install --no-interaction --no-ansi
+
+# Set environment variables
+ENV PYTHONPATH=/app/src
+ENV PYTHONUNBUFFERED=1
 
 # Run the application
-CMD ["gunicorn", "sync.wsgi:application", "--bind", "0.0.0.0:8000"] 
+CMD ["poetry", "run", "python", "src/manage.py", "runserver", "0.0.0.0:8000"] 

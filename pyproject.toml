@@ -3,6 +3,9 @@ name = "sync"
 version = "0.1.0"
 description = "A web app for syncing YouTube playlists with Spotify"
 authors = ["Your Name <your.email@example.com>"]
+packages = [
+    { include = "src" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
