@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Sync - Sync{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Review Sync Results</h2>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Sync Details</h5>
+                <p><strong>YouTube Playlist:</strong> {{ sync_job.youtube_playlist_url }}</p>
+                <p><strong>Spotify Playlist:</strong> {{ sync_job.spotify_playlist_name }}</p>
+                <p><strong>Reverse Order:</strong> {{ sync_job.reverse_order|yesno:"Yes,No" }}</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>YouTube Video</th>
+                        <th>Original Artist</th>
+                        <th>Original Song</th>
+                        <th>Spotify Track</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mapping in track_mappings %}
+                    <tr>
+                        <td>
+                            <a href="https://youtube.com/watch?v={{ mapping.youtube_video_id }}" target="_blank">
+                                {{ mapping.youtube_video_title }}
+                            </a>
+                        </td>
+                        <td>{{ mapping.original_artist }}</td>
+                        <td>{{ mapping.original_song }}</td>
+                        <td>
+                            <a href="https://open.spotify.com/track/{{ mapping.spotify_track_id }}" target="_blank">
+                                {{ mapping.spotify_track_name }} - {{ mapping.spotify_artist_name }}
+                            </a>
+                        </td>
+                        <td>{{ mapping.confidence_score|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Confirm and Create Spotify Playlist</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 
