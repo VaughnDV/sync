@@ -1,5 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate
 from .models import User
 
 class UserRegistrationForm(UserCreationForm):
@@ -17,5 +18,20 @@ class UserRegistrationForm(UserCreationForm):
         return user
 
 class UserLoginForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput) 
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
+
+        if email and password:
+            user = authenticate(email=email, password=password)
+            if user is None:
+                raise forms.ValidationError("Invalid email or password")
+            cleaned_data['user'] = user
+        return cleaned_data
+
+    def get_user(self):
+        return self.cleaned_data.get('user') 
