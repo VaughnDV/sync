@@ -113,6 +113,19 @@ SOCIAL_AUTH_SPOTIFY_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 SOCIAL_AUTH_SPOTIFY_SCOPE = ['playlist-read-private', 'playlist-modify-public', 'playlist-modify-private']
 SOCIAL_AUTH_SPOTIFY_REDIRECT_URI = 'https://rpi.vaughndv.com/social-auth/complete/spotify/'
 
+# Session settings
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Social Auth settings
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'dashboard'
+SOCIAL_AUTH_LOGIN_ERROR_URL = 'accounts:login'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+SOCIAL_AUTH_SPOTIFY_AUTH_EXTRA_ARGUMENTS = {'show_dialog': True}
+
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
