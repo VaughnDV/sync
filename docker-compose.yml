@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: docker/django/Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
+    command: poetry run python src/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
@@ -21,6 +21,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - db
+    networks:
+      - app-network
 
   nginx:
     image: nginx:latest
@@ -31,6 +33,8 @@ services:
       - ./static:/app/static
     depends_on:
       - web
+    networks:
+      - app-network
 
   db:
     image: postgres:15
@@ -42,6 +46,12 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres_data: 
