@@ -12,6 +12,9 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'rpi.vaughndv.com']
 
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = ['https://rpi.vaughndv.com']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
