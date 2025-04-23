@@ -22,15 +22,12 @@ ENV PATH="${POETRY_VENV}/bin:${PATH}"
 # Set working directory
 WORKDIR /app
 
-# Copy project files
-COPY pyproject.toml poetry.lock ./
+# Copy the entire project
+COPY . .
 
 # Install dependencies
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
-
-# Copy the rest of the application
-COPY . .
 
 # Set environment variables
 ENV PYTHONPATH=/app
