@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Review Playlist Sync{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Review Playlist Sync</h1>
+
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-2">Sync Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">YouTube Playlist</p>
+                        <p class="text-base">{{ sync_job.youtube_playlist_url }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Spotify Playlist</p>
+                        <p class="text-base">{{ sync_job.spotify_playlist_name }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">Track Mappings</h2>
+                <div class="space-y-4">
+                    {% for mapping in track_mappings %}
+                    <div class="border rounded-lg p-4 {% if mapping.confidence_score >= 0.8 %}bg-green-50{% elif mapping.confidence_score >= 0.6 %}bg-yellow-50{% else %}bg-red-50{% endif %}">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h3 class="font-medium text-gray-900">YouTube Video</h3>
+                                <p class="text-sm text-gray-600">{{ mapping.youtube_video_title }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900">Spotify Track</h3>
+                                <p class="text-sm text-gray-600">{{ mapping.spotify_track_name }} - {{ mapping.spotify_artist_name }}</p>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-600">
+                                Confidence: {{ mapping.confidence_score|floatformat:2 }}
+                                {% if mapping.confidence_score >= 0.8 %}
+                                <span class="text-green-600">✓ High confidence</span>
+                                {% elif mapping.confidence_score >= 0.6 %}
+                                <span class="text-yellow-600">⚠ Medium confidence</span>
+                                {% else %}
+                                <span class="text-red-600">⚠ Low confidence</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex justify-center space-x-4">
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create">
+                    <button type="submit"
+                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Create Spotify Playlist
+                    </button>
+                </form>
+                <a href="{% url 'playlist_sync:sync_playlist' %}"
+                    class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Start New Sync
+                </a>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
