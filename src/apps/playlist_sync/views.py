@@ -84,7 +84,7 @@ def review_sync(request, job_id):
         sync_job.save()
         
         messages.success(request, 'Playlist synced successfully!')
-        return redirect('dashboard')
+        return redirect('dashboard:dashboard')
     
     return render(request, 'playlist_sync/review.html', {
         'sync_job': sync_job,

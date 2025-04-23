@@ -8,7 +8,7 @@ from .forms import UserRegistrationForm, UserLoginForm
 class RegisterView(CreateView):
     form_class = UserRegistrationForm
     template_name = 'accounts/register.html'
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('accounts:login')
 
 def login_view(request):
     if request.method == 'POST':
@@ -16,7 +16,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('dashboard')
+            return redirect('dashboard:dashboard')
     else:
         form = UserLoginForm()
     return render(request, 'accounts/login.html', {'form': form})
@@ -24,4 +24,4 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    return redirect('login') 
+    return redirect('accounts:login') 
