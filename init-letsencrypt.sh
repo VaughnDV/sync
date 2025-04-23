@@ -42,6 +42,14 @@ echo
 echo "### Waiting for services to start ..."
 sleep 10
 
+# Test the challenge file
+echo "### Testing challenge file ..."
+mkdir -p ./docker/nginx/letsencrypt/.well-known/acme-challenge
+echo "test" > ./docker/nginx/letsencrypt/.well-known/acme-challenge/test
+curl -I http://rpi.vaughndv.com/.well-known/acme-challenge/test
+rm -f ./docker/nginx/letsencrypt/.well-known/acme-challenge/test
+echo
+
 echo "### Requesting Let's Encrypt certificate for $domains ..."
 domain_args=""
 for domain in "${domains[@]}"; do
