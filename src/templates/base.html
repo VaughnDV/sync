@@ -19,25 +19,25 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{% url 'dashboard' %}" class="text-2xl font-bold text-indigo-600">Sync</a>
+                        <a href="{% url 'dashboard:dashboard' %}" class="text-2xl font-bold text-indigo-600">Sync</a>
                     </div>
                 </div>
                 <div class="flex items-center">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'dashboard' %}" 
+                        <a href="{% url 'dashboard:dashboard' %}" 
                            class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
                             Dashboard
                         </a>
-                        <a href="{% url 'logout' %}" 
+                        <a href="{% url 'accounts:logout' %}" 
                            class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
                             Logout
                         </a>
                     {% else %}
-                        <a href="{% url 'login' %}" 
+                        <a href="{% url 'accounts:login' %}" 
                            class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
                             Login
                         </a>
-                        <a href="{% url 'register' %}" 
+                        <a href="{% url 'accounts:register' %}" 
                            class="bg-indigo-600 text-white hover:bg-indigo-700 ml-3 px-4 py-2 rounded-md text-sm font-medium">
                             Register
                         </a>
