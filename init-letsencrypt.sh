@@ -33,13 +33,13 @@ echo "### Stopping any running containers ..."
 docker-compose down
 echo
 
-# Start nginx with HTTP-only configuration
-echo "### Starting nginx with HTTP-only configuration ..."
-docker-compose up --force-recreate -d nginx
+# Start all services
+echo "### Starting all services ..."
+docker-compose up -d
 echo
 
-# Wait for nginx to start
-echo "### Waiting for nginx to start ..."
+# Wait for services to start
+echo "### Waiting for services to start ..."
 sleep 10
 
 echo "### Requesting Let's Encrypt certificate for $domains ..."
@@ -68,8 +68,8 @@ docker-compose run --rm --entrypoint "\
     --force-renewal" certbot
 echo
 
-# Stop nginx
-echo "### Stopping nginx ..."
+# Stop all services
+echo "### Stopping all services ..."
 docker-compose down
 echo
 
