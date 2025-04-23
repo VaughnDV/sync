@@ -14,6 +14,12 @@ if [ -d "$data_path" ]; then
   fi
 fi
 
+# Create necessary directories
+mkdir -p "$data_path/conf/live/$domains"
+mkdir -p "$data_path/conf/archive/$domains"
+mkdir -p "$data_path/conf/renewal"
+mkdir -p "./docker/nginx/letsencrypt"
+
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
   mkdir -p "$data_path/conf"
@@ -24,8 +30,8 @@ fi
 
 echo "### Creating dummy certificate for $domains ..."
 path="/etc/letsencrypt/live/$domains"
-mkdir -p "$data_path/conf/live/$domains"
 docker-compose run --rm --entrypoint "\
+  mkdir -p /etc/letsencrypt/live/$domains && \
   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
@@ -35,6 +41,10 @@ echo
 echo "### Starting nginx ..."
 docker-compose up --force-recreate -d nginx
 echo
+
+# Wait for nginx to start
+echo "### Waiting for nginx to start ..."
+sleep 10
 
 echo "### Deleting dummy certificate for $domains ..."
 docker-compose run --rm --entrypoint "\
