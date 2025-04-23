@@ -111,6 +111,7 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_SPOTIFY_KEY = os.getenv('SPOTIFY_CLIENT_ID')
 SOCIAL_AUTH_SPOTIFY_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 SOCIAL_AUTH_SPOTIFY_SCOPE = ['playlist-read-private', 'playlist-modify-public', 'playlist-modify-private']
+SOCIAL_AUTH_SPOTIFY_REDIRECT_URI = 'https://rpi.vaughndv.com/social-auth/complete/spotify/'
 
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'dashboard'
