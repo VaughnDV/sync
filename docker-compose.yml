@@ -28,9 +28,11 @@ services:
     image: nginx:latest
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./static:/app/static
+      - ./ssl:/etc/nginx/ssl
     depends_on:
       - web
     networks:
