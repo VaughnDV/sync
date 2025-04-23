@@ -5,14 +5,17 @@ from .models import User
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
+    username = forms.CharField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('email', 'password1', 'password2')
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
+        # Generate a username from email
+        user.username = self.cleaned_data['email'].split('@')[0]
         if commit:
             user.save()
         return user
