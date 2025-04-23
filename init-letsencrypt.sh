@@ -28,7 +28,13 @@ if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/
   echo
 fi
 
-echo "### Starting nginx ..."
+# Stop any running containers
+echo "### Stopping any running containers ..."
+docker-compose down
+echo
+
+# Start nginx with HTTP-only configuration
+echo "### Starting nginx with HTTP-only configuration ..."
 docker-compose up --force-recreate -d nginx
 echo
 
@@ -51,6 +57,7 @@ esac
 # Enable staging mode if needed
 if [ $staging != "0" ]; then staging_arg="--staging"; fi
 
+# Request the certificate
 docker-compose run --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
     $staging_arg \
@@ -60,6 +67,18 @@ docker-compose run --rm --entrypoint "\
     --agree-tos \
     --force-renewal" certbot
 echo
+
+# Stop nginx
+echo "### Stopping nginx ..."
+docker-compose down
+echo
+
+# Start all services with SSL configuration
+echo "### Starting all services with SSL configuration ..."
+docker-compose up -d
+echo
+
+echo "### Done! Your certificates should now be installed and nginx should be running with SSL."
 
 echo "### Updating nginx configuration for SSL ..."
 # Update nginx configuration to use SSL
