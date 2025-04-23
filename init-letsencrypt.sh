@@ -28,16 +28,6 @@ if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/
   echo
 fi
 
-echo "### Creating dummy certificate for $domains ..."
-path="/etc/letsencrypt/live/$domains"
-docker-compose run --rm --entrypoint "\
-  mkdir -p /etc/letsencrypt/live/$domains && \
-  openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
-    -keyout '$path/privkey.pem' \
-    -out '$path/fullchain.pem' \
-    -subj '/CN=localhost'" certbot
-echo
-
 echo "### Starting nginx ..."
 docker-compose up --force-recreate -d nginx
 echo
@@ -45,13 +35,6 @@ echo
 # Wait for nginx to start
 echo "### Waiting for nginx to start ..."
 sleep 10
-
-echo "### Deleting dummy certificate for $domains ..."
-docker-compose run --rm --entrypoint "\
-  rm -Rf /etc/letsencrypt/live/$domains && \
-  rm -Rf /etc/letsencrypt/archive/$domains && \
-  rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot
-echo
 
 echo "### Requesting Let's Encrypt certificate for $domains ..."
 domain_args=""
@@ -78,5 +61,44 @@ docker-compose run --rm --entrypoint "\
     --force-renewal" certbot
 echo
 
-echo "### Reloading nginx ..."
-docker-compose exec nginx nginx -s reload 
+echo "### Updating nginx configuration for SSL ..."
+# Update nginx configuration to use SSL
+cat > docker/nginx/nginx.conf << 'EOL'
+upstream django {
+    server web:8000;
+}
+
+server {
+    listen 80;
+    server_name rpi.vaughndv.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name rpi.vaughndv.com;
+
+    ssl_certificate /etc/letsencrypt/live/rpi.vaughndv.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/rpi.vaughndv.com/privkey.pem;
+
+    # SSL configuration
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+
+    location /static/ {
+        alias /app/static/;
+    }
+
+    location / {
+        proxy_pass http://django;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+EOL
+
+echo "### Reloading nginx with SSL configuration ..."
+docker-compose up --force-recreate -d nginx 
