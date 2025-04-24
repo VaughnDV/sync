@@ -22,4 +22,4 @@ RUN poetry config virtualenvs.create false \
 COPY . .
 
 # Run the application
-CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["poetry", "run", "uvicorn", "sync.asgi:application", "--host", "0.0.0.0", "--port", "8000"]

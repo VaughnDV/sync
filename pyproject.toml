@@ -20,6 +20,8 @@ python-social-auth = "^0.3.6"
 social-auth-app-django = "^5.4.0"
 django-crispy-forms = "^2.1"
 crispy-bootstrap5 = "^2023.10"
+uvicorn = "^0.27.1"
+asgiref = "^3.7.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.1.1"
