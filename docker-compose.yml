@@ -7,7 +7,7 @@ services:
       - .:/app
       - .env:/app/.env
     environment:
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app/src
     depends_on:
       - db
     networks:
