@@ -123,7 +123,7 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'dashboard'
 SOCIAL_AUTH_LOGIN_ERROR_URL = 'accounts:login'
-SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+SOCIAL_AUTH_RAISE_EXCEPTIONS = True
 SOCIAL_AUTH_SPOTIFY_AUTH_EXTRA_ARGUMENTS = {'show_dialog': True}
 
 LOGIN_URL = 'accounts:login'
@@ -144,4 +144,27 @@ SOCIAL_AUTH_PIPELINE = (
 
 # API Keys
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY') 
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+# Debug settings
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'dashboard'
+SOCIAL_AUTH_LOGIN_ERROR_URL = 'accounts:login'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = True
+SOCIAL_AUTH_SPOTIFY_AUTH_EXTRA_ARGUMENTS = {'show_dialog': True}
+
+# Add logging for social auth
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'social_core': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+} 
