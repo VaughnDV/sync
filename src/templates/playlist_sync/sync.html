@@ -4,22 +4,50 @@
 {% block title %}Sync Playlist - Sync{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="text-center">Sync YouTube Playlist to Spotify</h3>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <div class="d-grid gap-2 mt-3">
-                        <button type="submit" class="btn btn-primary">Start Sync</button>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Sync YouTube Playlist to Spotify</h1>
+        
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div>
+                        <label for="id_youtube_playlist_url" class="block text-sm font-medium text-gray-700">
+                            YouTube Playlist URL
+                        </label>
+                        {{ form.youtube_playlist_url|as_crispy_field }}
                     </div>
-                </form>
-            </div>
+
+                    <div>
+                        <label for="id_spotify_playlist_name" class="block text-sm font-medium text-gray-700">
+                            Spotify Playlist Name
+                        </label>
+                        {{ form.spotify_playlist_name|as_crispy_field }}
+                    </div>
+
+                    <div class="flex items-center">
+                        {{ form.reverse_order|as_crispy_field }}
+                        <label for="id_reverse_order" class="ml-2 block text-sm text-gray-700">
+                            Reverse playlist order
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mt-6">
+                    <button type="submit"
+                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Start Sync
+                    </button>
+                </div>
+            </form>
         </div>
+
+        {% if error %}
+        <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {{ error }}
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %} 
