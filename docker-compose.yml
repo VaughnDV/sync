@@ -11,7 +11,7 @@ services:
     depends_on:
       - db
     networks:
-      - app_network
+      - app-network
     restart: unless-stopped
 
   db:
@@ -39,7 +39,7 @@ services:
     depends_on:
       - web
     networks:
-      - app_network
+      - app-network
     restart: unless-stopped
 
 
