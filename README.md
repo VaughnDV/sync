@@ -42,7 +42,7 @@ DB_PORT=5432
 YOUTUBE_API_KEY=your-youtube-api-key
 SPOTIFY_CLIENT_ID=your-spotify-client-id
 SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
-SPOTIFY_REDIRECT_URI=http://localhost:8000/social-auth/complete/spotify/
+SPOTIFY_REDIRECT_URI=https://localhost:8000/social-auth/complete/spotify/
 OPENAI_API_KEY=your-openai-api-key
 ```
 
