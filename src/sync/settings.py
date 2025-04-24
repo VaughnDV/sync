@@ -112,6 +112,8 @@ SOCIAL_AUTH_SPOTIFY_KEY = os.getenv('SPOTIFY_CLIENT_ID')
 SOCIAL_AUTH_SPOTIFY_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 SOCIAL_AUTH_SPOTIFY_SCOPE = ['playlist-read-private', 'playlist-modify-public', 'playlist-modify-private']
 SOCIAL_AUTH_SPOTIFY_REDIRECT_URI = 'https://rpi.vaughndv.com/social-auth/complete/spotify/'
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True    
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Session settings
 SESSION_COOKIE_SECURE = True
