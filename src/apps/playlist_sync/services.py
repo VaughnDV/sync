@@ -95,8 +95,8 @@ class OpenAIService:
     def identify_original_song(self, video_title):
         try:
             prompt = f"""
-            Analyze this YouTube video title and determine if it's a cover song.
-            If it is a cover, identify the original artist and song name.
+            Analyze this YouTube video title and determine if it's a cover song or an original song or lesson for a song.
+            If it is a cover song or an original song or lesson for a song, identify the original artist and song name.
             Title: "{video_title}"
             
             Respond in this format:
