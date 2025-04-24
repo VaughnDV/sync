@@ -6,19 +6,12 @@ services:
     volumes:
       - .:/app
       - .env:/app/.env
-    env_file:
-      - .env
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
-      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
-      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
-      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PYTHONPATH=/app
     depends_on:
       - db
     networks:
-      - app-network
+      - app_network
     restart: unless-stopped
 
   db:
@@ -36,29 +29,19 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: nginx:1.25
+    image: nginx:alpine
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - ./static:/app/static
-      - ./ssl:/etc/letsencrypt
-      - ./docker/nginx/letsencrypt:/var/www/certbot
+      - ./app/static:/app/static
     depends_on:
       - web
     networks:
-      - app-network
+      - app_network
     restart: unless-stopped
 
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./ssl:/etc/letsencrypt
-      - ./docker/nginx/letsencrypt:/var/www/certbot
-    networks:
-      - app-network
-    restart: unless-stopped
 
 volumes:
   postgres_data:
