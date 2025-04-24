@@ -123,13 +123,13 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Social Auth settings
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'dashboard'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'dashboard:dashboard'
 SOCIAL_AUTH_LOGIN_ERROR_URL = 'accounts:login'
 SOCIAL_AUTH_RAISE_EXCEPTIONS = True
 SOCIAL_AUTH_SPOTIFY_AUTH_EXTRA_ARGUMENTS = {'show_dialog': True}
 
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'dashboard'
+LOGIN_REDIRECT_URL = 'dashboard:dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
 SOCIAL_AUTH_PIPELINE = (
