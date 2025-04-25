@@ -21,8 +21,15 @@ RUN poetry config virtualenvs.create false \
 # Copy application code
 COPY . .
 
+# Copy and set up entrypoint
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Set PYTHONPATH to include src directory
 ENV PYTHONPATH=/app/src
+
+# Use the entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Run the application
 CMD ["poetry", "run", "uvicorn", "src.sync.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
