@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard - Sync{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
@@ -12,7 +12,7 @@
             <div class="bg-gray-800 shadow-lg rounded-lg p-6 border border-gray-700">
                 <h2 class="text-xl font-semibold mb-4 text-gray-200">YouTube to Spotify Sync</h2>
                 <p class="text-gray-400 mb-4">Sync your YouTube playlist with Spotify, automatically identifying cover songs and finding the original tracks.</p>
-                <a href="{% url 'playlist_sync:sync' %}" 
+                <a href="{% url 'playlist_sync:sync_playlist' %}" 
                    class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Start Syncing
                 </a>
