@@ -10,7 +10,10 @@ psql -v ON_ERROR_STOP=1 --username "postgres" <<-EOSQL
         END IF;
     END
     \$\$;
-    CREATE DATABASE vaughndv;
+
+    SELECT 'CREATE DATABASE vaughndv'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'vaughndv')\gexec
+
     GRANT ALL PRIVILEGES ON DATABASE vaughndv TO postgres;
     ALTER USER postgres WITH LOGIN;
 EOSQL 
