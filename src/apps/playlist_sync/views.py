@@ -100,14 +100,14 @@ def sync_playlist(request):
                 sync_job.status = 'failed'
                 sync_job.save()
                 if e.http_status == 401:
-                    error_msg = "Your Spotify session has expired. Please reconnect your account."
+                    messages.error(request, "Your Spotify session has expired. Please reconnect your account.")
+                    return redirect('social:begin', 'spotify')
                 else:
-                    error_msg = f"Spotify API error: {str(e)}"
-                return render(request, 'playlist_sync/sync_playlist.html', {
-                    'form': form,
-                    'error': error_msg,
-                    'spotify_playlists': spotify_playlists
-                })
+                    return render(request, 'playlist_sync/sync_playlist.html', {
+                        'form': form,
+                        'error': f"Spotify API error: {str(e)}",
+                        'spotify_playlists': spotify_playlists
+                    })
             except Exception as e:
                 sync_job.status = 'failed'
                 sync_job.save()
