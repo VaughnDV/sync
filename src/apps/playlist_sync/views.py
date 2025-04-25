@@ -28,9 +28,21 @@ def sync_playlist(request):
             try:
                 # Get YouTube playlist items
                 playlist_items = youtube_service.get_playlist_items(sync_job.youtube_playlist_url)
+                total_items = len(playlist_items)
+                
+                if total_items == 0:
+                    raise Exception("No videos found in the playlist.")
+                
+                if total_items > 100:
+                    messages.warning(request, f"Large playlist detected ({total_items} videos). This may take a while.")
                 
                 # Process each video
+                processed_count = 0
                 for item in playlist_items:
+                    processed_count += 1
+                    if processed_count % 10 == 0:
+                        messages.info(request, f"Processing video {processed_count} of {total_items}...")
+                    
                     # Use OpenAI to identify if it's a cover and get original artist/song
                     original_info = openai_service.identify_original_song(item['title'])
                     
@@ -58,6 +70,7 @@ def sync_playlist(request):
                 sync_job.status = 'completed'
                 sync_job.save()
                 
+                messages.success(request, f"Successfully processed {total_items} videos!")
                 return redirect('playlist_sync:review', sync_job.id)
             except SpotifyException as e:
                 sync_job.status = 'failed'
@@ -88,23 +101,37 @@ def review_sync(request, job_id):
     track_mappings = sync_job.track_mappings.all()
     
     if request.method == 'POST':
-        # Create or update Spotify playlist
-        spotify_service = SpotifyService(request.user)
-        track_ids = [mapping.spotify_track_id for mapping in track_mappings]
-        
-        if sync_job.reverse_order:
-            track_ids.reverse()
+        try:
+            # Create or update Spotify playlist
+            spotify_service = SpotifyService(request.user)
+            track_ids = [mapping.spotify_track_id for mapping in track_mappings]
             
-        playlist_id = spotify_service.create_or_update_playlist(
-            sync_job.spotify_playlist_name,
-            track_ids
-        )
-        
-        sync_job.spotify_playlist_id = playlist_id
-        sync_job.save()
-        
-        messages.success(request, 'Playlist synced successfully!')
-        return redirect('dashboard:dashboard')
+            if sync_job.reverse_order:
+                track_ids.reverse()
+            
+            # Handle Spotify's limit of 100 tracks per request
+            playlist_id = None
+            for i in range(0, len(track_ids), 100):
+                chunk = track_ids[i:i + 100]
+                if not playlist_id:
+                    playlist_id = spotify_service.create_or_update_playlist(
+                        sync_job.spotify_playlist_name,
+                        chunk
+                    )
+                else:
+                    spotify_service.sp.playlist_add_items(playlist_id, chunk)
+            
+            sync_job.spotify_playlist_id = playlist_id
+            sync_job.save()
+            
+            messages.success(request, 'Playlist synced successfully!')
+            return redirect('dashboard:dashboard')
+        except SpotifyException as e:
+            if e.http_status == 401:
+                messages.error(request, "Your Spotify session has expired. Please reconnect your account.")
+                return redirect('social:begin', 'spotify')
+            else:
+                messages.error(request, f"Spotify API error: {str(e)}")
     
     return render(request, 'playlist_sync/review.html', {
         'sync_job': sync_job,

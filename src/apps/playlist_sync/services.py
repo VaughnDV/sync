@@ -15,20 +15,30 @@ class YouTubeService:
             # Extract playlist ID from URL
             playlist_id = self._extract_playlist_id(playlist_url)
             
-            # Get playlist items
-            request = self.youtube.playlistItems().list(
-                part='snippet',
-                playlistId=playlist_id,
-                maxResults=50
-            )
-            response = request.execute()
-            
             items = []
-            for item in response['items']:
-                items.append({
-                    'id': item['snippet']['resourceId']['videoId'],
-                    'title': item['snippet']['title']
-                })
+            next_page_token = None
+            
+            while True:
+                # Get playlist items
+                request = self.youtube.playlistItems().list(
+                    part='snippet',
+                    playlistId=playlist_id,
+                    maxResults=50,
+                    pageToken=next_page_token
+                )
+                response = request.execute()
+                
+                # Add items from current page
+                for item in response['items']:
+                    items.append({
+                        'id': item['snippet']['resourceId']['videoId'],
+                        'title': item['snippet']['title']
+                    })
+                
+                # Check if there are more pages
+                next_page_token = response.get('nextPageToken')
+                if not next_page_token:
+                    break
             
             return items
         except HttpError as e:
