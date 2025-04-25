@@ -15,7 +15,7 @@ services:
         condition: service_healthy
     environment:
       - DEBUG=1
-      - DATABASE_URL=postgres://rdb:postgres@db:5432/vaughndv
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/vaughndv
       - REDIS_URL=redis://redis:6379/0
       - PYTHONUNBUFFERED=1
     networks:
@@ -36,14 +36,14 @@ services:
       - .env
     environment:
       - POSTGRES_DB=vaughndv
-      - POSTGRES_USER=rdb
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
       - app-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rdb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -74,7 +74,7 @@ services:
       - db
     environment:
       - DEBUG=1
-      - DATABASE_URL=postgres://rdb:postgres@db:5432/vaughndv
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/vaughndv
       - REDIS_URL=redis://redis:6379/0
       - PYTHONUNBUFFERED=1
     networks:
@@ -91,7 +91,7 @@ services:
       - db
     environment:
       - DEBUG=1
-      - DATABASE_URL=postgres://rdb:postgres@db:5432/vaughndv
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/vaughndv
       - REDIS_URL=redis://redis:6379/0
       - PYTHONUNBUFFERED=1
     networks:
