@@ -106,7 +106,7 @@ def sync_playlist(request):
                 })
     else:
         form = SyncJobForm()
-        spotify_playlists = []
+        spotify_playlists = []  # Initialize the variable
         
         if request.user.spotify_access_token:
             try:
