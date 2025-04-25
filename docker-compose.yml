@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
-    command: uvicorn sync.asgi:application --host 0.0.0.0 --port 8000
+    command: uvicorn sync.asgi:application --host 0.0.0.0 --port 8000 --log-level debug
     volumes:
       - .:/app
     ports:
@@ -17,6 +17,7 @@ services:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
     networks:
       - app-network
     healthcheck:
@@ -75,6 +76,7 @@ services:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
     networks:
       - app-network
 
@@ -92,6 +94,7 @@ services:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
     networks:
       - app-network
 
