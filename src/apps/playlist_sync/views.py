@@ -7,52 +7,81 @@ from .forms import SyncJobForm, TrackMappingForm
 from .services import YouTubeService, SpotifyService, OpenAIService
 from spotipy.exceptions import SpotifyException
 from django.urls import reverse
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def sync_playlist(request):
     spotify_playlists = []  # Initialize at the beginning of the function
     
     if request.method == 'POST':
-        if not request.user.spotify_access_token:
-            messages.error(request, "Please connect your Spotify account first.")
-            return redirect('social:begin', 'spotify')
+        try:
+            if not request.user.spotify_access_token:
+                messages.error(request, "Please connect your Spotify account first.")
+                return redirect('social:begin', 'spotify')
 
-        form = SyncJobForm(request.POST)
-        if form.is_valid():
-            sync_job = form.save(commit=False)
-            sync_job.user = request.user
-            sync_job.status = 'pending'
-            
-            # Check if an existing playlist was selected
-            existing_playlist_id = request.POST.get('existing_playlist')
-            if existing_playlist_id:
-                sync_job.spotify_playlist_id = existing_playlist_id
-                # Get the playlist name from Spotify
-                spotify_service = SpotifyService(request.user)
+            form = SyncJobForm(request.POST)
+            if form.is_valid():
+                sync_job = form.save(commit=False)
+                sync_job.user = request.user
+                sync_job.status = 'pending'
+                
+                # Check if an existing playlist was selected
+                existing_playlist_id = request.POST.get('existing_playlist')
+                if existing_playlist_id:
+                    sync_job.spotify_playlist_id = existing_playlist_id
+                    # Get the playlist name from Spotify
+                    spotify_service = SpotifyService(request.user)
+                    try:
+                        playlist = spotify_service.sp.playlist(existing_playlist_id)
+                        sync_job.spotify_playlist_name = playlist['name']
+                    except Exception as e:
+                        logger.error(f"Error fetching playlist name: {str(e)}")
+                        messages.warning(request, f"Could not fetch playlist name: {str(e)}")
+                        return render(request, 'playlist_sync/sync_playlist.html', {
+                            'form': form,
+                            'error': f"Could not fetch playlist name: {str(e)}",
+                            'spotify_playlists': spotify_playlists
+                        })
+                else:
+                    # If no existing playlist selected, use the name from the form
+                    sync_job.spotify_playlist_name = form.cleaned_data['spotify_playlist_name']
+                
+                sync_job.save()
+
+                # Start the sync process asynchronously
+                from .tasks import sync_playlist_task
                 try:
-                    playlist = spotify_service.sp.playlist(existing_playlist_id)
-                    sync_job.spotify_playlist_name = playlist['name']
+                    task = sync_playlist_task.delay(sync_job.id)
+                    sync_job.task_id = task.id
+                    sync_job.save()
                 except Exception as e:
-                    messages.warning(request, f"Could not fetch playlist name: {str(e)}")
+                    logger.error(f"Error starting sync task: {str(e)}")
+                    messages.error(request, f"Error starting sync task: {str(e)}")
                     return render(request, 'playlist_sync/sync_playlist.html', {
                         'form': form,
-                        'error': f"Could not fetch playlist name: {str(e)}",
+                        'error': f"Error starting sync task: {str(e)}",
                         'spotify_playlists': spotify_playlists
                     })
+
+                messages.info(request, "Playlist sync started. This may take a while. You'll be notified when it's complete.")
+                return redirect('playlist_sync:review', sync_job.id)
             else:
-                # If no existing playlist selected, use the name from the form
-                sync_job.spotify_playlist_name = form.cleaned_data['spotify_playlist_name']
-            
-            sync_job.save()
-
-            # Start the sync process asynchronously
-            from .tasks import sync_playlist_task
-            task = sync_playlist_task.delay(sync_job.id)
-            sync_job.task_id = task.id
-            sync_job.save()
-
-            messages.info(request, "Playlist sync started. This may take a while. You'll be notified when it's complete.")
-            return redirect('playlist_sync:review', sync_job.id)
+                logger.error(f"Form validation errors: {form.errors}")
+                return render(request, 'playlist_sync/sync_playlist.html', {
+                    'form': form,
+                    'error': "Please correct the errors below.",
+                    'spotify_playlists': spotify_playlists
+                })
+        except Exception as e:
+            logger.error(f"Unexpected error in sync_playlist: {str(e)}")
+            messages.error(request, f"An unexpected error occurred: {str(e)}")
+            return render(request, 'playlist_sync/sync_playlist.html', {
+                'form': SyncJobForm(),
+                'error': f"An unexpected error occurred: {str(e)}",
+                'spotify_playlists': spotify_playlists
+            })
     else:
         form = SyncJobForm()
         
@@ -62,6 +91,7 @@ def sync_playlist(request):
                 playlists = spotify_service.sp.current_user_playlists()
                 spotify_playlists = [{'id': p['id'], 'name': p['name']} for p in playlists['items']]
             except Exception as e:
+                logger.error(f"Error fetching Spotify playlists: {str(e)}")
                 messages.warning(request, f"Could not fetch Spotify playlists: {str(e)}")
 
     return render(request, 'playlist_sync/sync_playlist.html', {
