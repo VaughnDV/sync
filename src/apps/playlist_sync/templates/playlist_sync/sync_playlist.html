@@ -23,6 +23,7 @@
         <div class="bg-gray-800 shadow-lg rounded-lg p-6 border border-gray-700">
             <form method="post" class="space-y-6">
                 {% csrf_token %}
+                {{ form.spotify_playlist_id }}
                 
                 <div class="space-y-4">
                     <div>
@@ -112,13 +113,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     const playlistNameInput = document.getElementById('spotify_playlist_name');
     const existingPlaylistSelect = document.getElementById('existing_playlist');
+    const playlistIdInput = document.getElementById('id_spotify_playlist_id');
     
     existingPlaylistSelect.addEventListener('change', function() {
         if (this.value) {
             playlistNameInput.value = this.options[this.selectedIndex].text;
             playlistNameInput.disabled = true;
+            playlistIdInput.value = this.value;
         } else {
             playlistNameInput.disabled = false;
+            playlistIdInput.value = '';
         }
     });
 });
