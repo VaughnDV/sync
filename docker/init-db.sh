@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+POSTGRES="psql --username postgres"
+
+echo "Creating database: vaughndv"
+$POSTGRES <<EOSQL
+CREATE DATABASE vaughndv OWNER postgres;
+EOSQL
+
 echo "Starting database initialization..."
 
 # Create the postgres user if it doesn't exist
