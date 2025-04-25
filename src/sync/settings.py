@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -60,15 +61,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'sync.wsgi.application'
 
+# Database configuration
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgres://postgres:postgres@db:5432/vaughndv')
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'sync'),
-        'USER': os.getenv('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': os.getenv('POSTGRES_HOST', 'db'),
-        'PORT': os.getenv('POSTGRES_PORT', '5432'),
-    }
+    'default': dj_database_url.parse(DATABASE_URL)
 }
 
 AUTH_PASSWORD_VALIDATORS = [
