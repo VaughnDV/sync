@@ -31,10 +31,13 @@ COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Set proper permissions
-RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser /app && \
+    chown -R appuser:appuser /usr/local/lib/python3.11/site-packages && \
+    chown -R appuser:appuser /usr/local/bin/poetry
 
 # Set PYTHONPATH to include src directory
 ENV PYTHONPATH=/app/src
+ENV PATH="/home/appuser/.local/bin:${PATH}"
 
 # Switch to non-root user
 USER appuser
