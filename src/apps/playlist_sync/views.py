@@ -10,6 +10,8 @@ from django.urls import reverse
 
 @login_required
 def sync_playlist(request):
+    spotify_playlists = []  # Initialize at the beginning of the function
+    
     if request.method == 'POST':
         if not request.user.spotify_access_token:
             messages.error(request, "Please connect your Spotify account first.")
@@ -95,18 +97,19 @@ def sync_playlist(request):
                     error_msg = f"Spotify API error: {str(e)}"
                 return render(request, 'playlist_sync/sync_playlist.html', {
                     'form': form,
-                    'error': error_msg
+                    'error': error_msg,
+                    'spotify_playlists': spotify_playlists
                 })
             except Exception as e:
                 sync_job.status = 'failed'
                 sync_job.save()
                 return render(request, 'playlist_sync/sync_playlist.html', {
                     'form': form,
-                    'error': f'Error during sync: {str(e)}'
+                    'error': f'Error during sync: {str(e)}',
+                    'spotify_playlists': spotify_playlists
                 })
     else:
         form = SyncJobForm()
-        spotify_playlists = []  # Initialize the variable
         
         if request.user.spotify_access_token:
             try:
