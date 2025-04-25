@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
 # Install Poetry
 RUN pip install poetry
 
@@ -27,8 +30,14 @@ COPY . .
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Set proper permissions
+RUN chown -R appuser:appuser /app
+
 # Set PYTHONPATH to include src directory
 ENV PYTHONPATH=/app/src
+
+# Switch to non-root user
+USER appuser
 
 # Use the entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]
