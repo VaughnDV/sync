@@ -11,8 +11,8 @@ class SyncJobAdmin(admin.ModelAdmin):
 
 @admin.register(TrackMapping)
 class TrackMappingAdmin(admin.ModelAdmin):
-    list_display = ('sync_job', 'youtube_video_id', 'original_artist', 'original_title', 'spotify_track_id', 'confidence_score')
+    list_display = ('sync_job', 'youtube_video_id', 'original_artist', 'original_song', 'spotify_track_id', 'confidence_score')
     list_filter = ('confidence_score', 'created_at')
-    search_fields = ('youtube_video_id', 'original_artist', 'original_title', 'spotify_track_id')
+    search_fields = ('youtube_video_id', 'original_artist', 'original_song', 'spotify_track_id')
     ordering = ('-created_at',)
     raw_id_fields = ('sync_job',) 
