@@ -6,6 +6,7 @@ services:
     volumes:
       - .:/app
       - .env:/app/.env
+      - static_volume:/app/src/static
     environment:
       - PYTHONPATH=/app/src
     depends_on:
@@ -34,17 +35,16 @@ services:
       - "80:80"
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./static:/app/static
-      - ./app/static:/app/static
+      - static_volume:/app/src/static
     depends_on:
       - web
     networks:
       - app-network
     restart: unless-stopped
 
-
 volumes:
   postgres_data:
+  static_volume:
 
 networks:
   app-network:
