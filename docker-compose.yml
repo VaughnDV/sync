@@ -15,6 +15,8 @@ services:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+    networks:
+      - app-network
 
   db:
     image: postgres:15
@@ -36,6 +38,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - app-network
 
   celery:
     build: .
@@ -49,6 +53,8 @@ services:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+    networks:
+      - app-network
 
   celery-beat:
     build: .
@@ -62,6 +68,8 @@ services:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+    networks:
+      - app-network
 
   nginx:
     image: nginx:alpine
