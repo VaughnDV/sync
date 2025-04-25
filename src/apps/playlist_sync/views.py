@@ -26,25 +26,25 @@ def sync_playlist(request):
             openai_service = OpenAIService()
 
             try:
-                # Get YouTube playlist items
-                playlist_items = youtube_service.get_playlist_items(sync_job.youtube_playlist_url)
-                total_items = len(playlist_items)
+                # Get YouTube videos (from playlist or channel)
+                videos = youtube_service.get_videos_from_url(sync_job.youtube_playlist_url)
+                total_items = len(videos)
                 
                 if total_items == 0:
-                    raise Exception("No videos found in the playlist.")
+                    raise Exception("No videos found.")
                 
                 if total_items > 100:
-                    messages.warning(request, f"Large playlist detected ({total_items} videos). This may take a while.")
+                    messages.warning(request, f"Large collection detected ({total_items} videos). This may take a while.")
                 
                 # Process each video
                 processed_count = 0
-                for item in playlist_items:
+                for video in videos:
                     processed_count += 1
                     if processed_count % 10 == 0:
                         messages.info(request, f"Processing video {processed_count} of {total_items}...")
                     
                     # Use OpenAI to identify if it's a cover and get original artist/song
-                    original_info = openai_service.identify_original_song(item['title'])
+                    original_info = openai_service.identify_original_song(video['title'])
                     
                     if original_info:
                         # Search Spotify for the original song
@@ -57,8 +57,8 @@ def sync_playlist(request):
                             # Create track mapping
                             TrackMapping.objects.create(
                                 sync_job=sync_job,
-                                youtube_video_id=item['id'],
-                                youtube_video_title=item['title'],
+                                youtube_video_id=video['id'],
+                                youtube_video_title=video['title'],
                                 original_artist=original_info['artist'],
                                 original_song=original_info['song'],
                                 spotify_track_id=spotify_track['id'],

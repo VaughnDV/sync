@@ -10,6 +10,17 @@ class YouTubeService:
     def __init__(self):
         self.youtube = build('youtube', 'v3', developerKey=settings.YOUTUBE_API_KEY)
 
+    def get_videos_from_url(self, url):
+        try:
+            # Check if it's a playlist URL
+            if 'list=' in url:
+                return self.get_playlist_items(url)
+            # Check if it's a channel URL
+            elif 'youtube.com/channel/' in url or 'youtube.com/c/' in url or 'youtube.com/@' in url:
+                return self.get_channel_videos(url)
+            else:
+                raise Exception('Invalid YouTube URL. Please provide a playlist or channel URL.')
+
     def get_playlist_items(self, playlist_url):
         try:
             # Extract playlist ID from URL
@@ -44,11 +55,65 @@ class YouTubeService:
         except HttpError as e:
             raise Exception(f'YouTube API error: {str(e)}')
 
+    def get_channel_videos(self, channel_url):
+        try:
+            # Extract channel ID from URL
+            channel_id = self._extract_channel_id(channel_url)
+            
+            # First, get the uploads playlist ID
+            request = self.youtube.channels().list(
+                part='contentDetails',
+                id=channel_id
+            )
+            response = request.execute()
+            
+            if not response['items']:
+                raise Exception('Channel not found')
+            
+            uploads_playlist_id = response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+            
+            # Now get the videos from the uploads playlist
+            return self.get_playlist_items(f'https://www.youtube.com/playlist?list={uploads_playlist_id}')
+        except HttpError as e:
+            raise Exception(f'YouTube API error: {str(e)}')
+
     def _extract_playlist_id(self, url):
         # Extract playlist ID from various YouTube URL formats
         if 'list=' in url:
             return url.split('list=')[1].split('&')[0]
         raise Exception('Invalid YouTube playlist URL')
+
+    def _extract_channel_id(self, url):
+        # Extract channel ID from various YouTube URL formats
+        if 'youtube.com/channel/' in url:
+            return url.split('youtube.com/channel/')[1].split('/')[0]
+        elif 'youtube.com/c/' in url:
+            # For custom URLs, we need to get the channel ID
+            custom_url = url.split('youtube.com/c/')[1].split('/')[0]
+            request = self.youtube.search().list(
+                part='snippet',
+                q=custom_url,
+                type='channel',
+                maxResults=1
+            )
+            response = request.execute()
+            if response['items']:
+                return response['items'][0]['id']['channelId']
+            raise Exception('Channel not found')
+        elif 'youtube.com/@' in url:
+            # For @username URLs
+            username = url.split('youtube.com/@')[1].split('/')[0]
+            request = self.youtube.search().list(
+                part='snippet',
+                q=username,
+                type='channel',
+                maxResults=1
+            )
+            response = request.execute()
+            if response['items']:
+                return response['items'][0]['id']['channelId']
+            raise Exception('Channel not found')
+        raise Exception('Invalid YouTube channel URL')
 
 class SpotifyService:
     def __init__(self, user):
