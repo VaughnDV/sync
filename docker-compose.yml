@@ -3,32 +3,51 @@ version: '3.8'
 services:
   web:
     build: .
-    command: uvicorn sync.asgi:application --host 0.0.0.0 --port 8000
+    command: uvicorn sync.asgi:application --host 0.0.0.0 --port 8000 --log-level debug
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   db:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     env_file:
       - .env
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
       - app-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:7
@@ -36,6 +55,13 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   celery:
     build: .
@@ -45,10 +71,14 @@ services:
     depends_on:
       - web
       - redis
+      - db
     environment:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
 
   celery-beat:
     build: .
@@ -58,10 +88,14 @@ services:
     depends_on:
       - web
       - redis
+      - db
     environment:
       - DEBUG=1
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
 
   nginx:
     image: nginx:alpine
