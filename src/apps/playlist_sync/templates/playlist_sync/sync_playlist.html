@@ -52,13 +52,17 @@
                                 class="block w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 placeholder="My Synced Playlist">
                             <div class="mt-2">
-                                <select name="existing_playlist" id="existing_playlist"
-                                    class="block w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="">-- Select an existing playlist --</option>
-                                    {% for playlist in spotify_playlists %}
-                                    <option value="{{ playlist.id }}">{{ playlist.name }}</option>
-                                    {% endfor %}
-                                </select>
+                                <div class="flex items-center gap-2">
+                                    <select name="existing_playlist" id="existing_playlist"
+                                        class="block w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        disabled>
+                                        <option value="">-- Click "Load Playlists" to see your playlists --</option>
+                                    </select>
+                                    <button type="button" id="load-playlists-btn"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Load Playlists
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -136,7 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const playlistNameInput = document.getElementById('spotify_playlist_name');
     const existingPlaylistSelect = document.getElementById('existing_playlist');
     const playlistIdInput = document.getElementById('id_spotify_playlist_id');
+    const loadPlaylistsBtn = document.getElementById('load-playlists-btn');
     
+    // Handle playlist selection
     existingPlaylistSelect.addEventListener('change', function() {
         if (this.value) {
             playlistNameInput.value = this.options[this.selectedIndex].text;
@@ -145,6 +151,50 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             playlistNameInput.disabled = false;
             playlistIdInput.value = '';
+        }
+    });
+
+    // Handle loading playlists
+    loadPlaylistsBtn.addEventListener('click', async function() {
+        try {
+            // Show loading state
+            loadPlaylistsBtn.disabled = true;
+            loadPlaylistsBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+            `;
+
+            // Fetch playlists
+            const response = await fetch('{% url "playlist_sync:get_playlists" %}');
+            if (!response.ok) {
+                throw new Error('Failed to fetch playlists');
+            }
+            const playlists = await response.json();
+
+            // Clear existing options
+            existingPlaylistSelect.innerHTML = '<option value="">-- Select a playlist --</option>';
+
+            // Add new options
+            playlists.forEach(playlist => {
+                const option = document.createElement('option');
+                option.value = playlist.id;
+                option.textContent = playlist.name;
+                existingPlaylistSelect.appendChild(option);
+            });
+
+            // Enable the select
+            existingPlaylistSelect.disabled = false;
+
+        } catch (error) {
+            console.error('Error loading playlists:', error);
+            alert('Failed to load playlists. Please try again.');
+        } finally {
+            // Reset button state
+            loadPlaylistsBtn.disabled = false;
+            loadPlaylistsBtn.textContent = 'Load Playlists';
         }
     });
 });

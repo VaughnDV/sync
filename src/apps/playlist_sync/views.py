@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import SyncJob, TrackMapping
 from .forms import SyncJobForm, TrackMappingForm
 from .services import YouTubeService, SpotifyService, OpenAIService
@@ -161,4 +162,23 @@ def review_sync(request, job_id):
     return render(request, 'playlist_sync/review.html', {
         'sync_job': sync_job,
         'track_mappings': track_mappings
-    }) 
+    })
+
+@login_required
+def get_playlists(request):
+    """AJAX endpoint to fetch user's Spotify playlists."""
+    if not request.user.spotify_access_token:
+        return JsonResponse({'error': 'Spotify not connected'}, status=401)
+    
+    try:
+        spotify_service = SpotifyService(request.user)
+        playlists = spotify_service.sp.current_user_playlists()
+        return JsonResponse({
+            'playlists': [{'id': p['id'], 'name': p['name']} for p in playlists['items']]
+        })
+    except SpotifyException as e:
+        if e.http_status == 401:
+            return JsonResponse({'error': 'Spotify token expired'}, status=401)
+        return JsonResponse({'error': str(e)}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500) 
