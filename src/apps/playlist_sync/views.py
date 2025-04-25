@@ -33,6 +33,14 @@ def sync_playlist(request):
                     sync_job.spotify_playlist_name = playlist['name']
                 except Exception as e:
                     messages.warning(request, f"Could not fetch playlist name: {str(e)}")
+                    return render(request, 'playlist_sync/sync_playlist.html', {
+                        'form': form,
+                        'error': f"Could not fetch playlist name: {str(e)}",
+                        'spotify_playlists': spotify_playlists
+                    })
+            else:
+                # If no existing playlist selected, use the name from the form
+                sync_job.spotify_playlist_name = form.cleaned_data['spotify_playlist_name']
             
             sync_job.save()
 
