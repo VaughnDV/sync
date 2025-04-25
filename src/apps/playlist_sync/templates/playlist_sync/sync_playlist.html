@@ -45,11 +45,22 @@
 
                     <div>
                         <label for="spotify_playlist_name" class="block text-sm font-medium text-gray-300">
-                            Spotify Playlist Name
+                            Spotify Playlist
                         </label>
-                        <input type="text" name="spotify_playlist_name" id="spotify_playlist_name" required
-                            class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            placeholder="My Synced Playlist">
+                        <div class="mt-1">
+                            <input type="text" name="spotify_playlist_name" id="spotify_playlist_name"
+                                class="block w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                placeholder="My Synced Playlist">
+                            <div class="mt-2">
+                                <select name="existing_playlist" id="existing_playlist"
+                                    class="block w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">-- Select an existing playlist --</option>
+                                    {% for playlist in spotify_playlists %}
+                                    <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex items-center">
@@ -96,4 +107,20 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const playlistNameInput = document.getElementById('spotify_playlist_name');
+    const existingPlaylistSelect = document.getElementById('existing_playlist');
+    
+    existingPlaylistSelect.addEventListener('change', function() {
+        if (this.value) {
+            playlistNameInput.value = this.options[this.selectedIndex].text;
+            playlistNameInput.disabled = true;
+        } else {
+            playlistNameInput.disabled = false;
+        }
+    });
+});
+</script>
 {% endblock %} 

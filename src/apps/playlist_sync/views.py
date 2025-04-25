@@ -18,6 +18,19 @@ def sync_playlist(request):
         if form.is_valid():
             sync_job = form.save(commit=False)
             sync_job.user = request.user
+            
+            # Check if an existing playlist was selected
+            existing_playlist_id = request.POST.get('existing_playlist')
+            if existing_playlist_id:
+                sync_job.spotify_playlist_id = existing_playlist_id
+                # Get the playlist name from Spotify
+                spotify_service = SpotifyService(request.user)
+                try:
+                    playlist = spotify_service.sp.playlist(existing_playlist_id)
+                    sync_job.spotify_playlist_name = playlist['name']
+                except Exception as e:
+                    messages.warning(request, f"Could not fetch playlist name: {str(e)}")
+            
             sync_job.save()
 
             # Start the sync process
@@ -92,8 +105,20 @@ def sync_playlist(request):
                 })
     else:
         form = SyncJobForm()
+        spotify_playlists = []
+        
+        if request.user.spotify_access_token:
+            try:
+                spotify_service = SpotifyService(request.user)
+                playlists = spotify_service.sp.current_user_playlists()
+                spotify_playlists = [{'id': p['id'], 'name': p['name']} for p in playlists['items']]
+            except Exception as e:
+                messages.warning(request, f"Could not fetch Spotify playlists: {str(e)}")
 
-    return render(request, 'playlist_sync/sync_playlist.html', {'form': form})
+    return render(request, 'playlist_sync/sync_playlist.html', {
+        'form': form,
+        'spotify_playlists': spotify_playlists
+    })
 
 @login_required
 def review_sync(request, job_id):
