@@ -3,7 +3,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import openai
+from openai import OpenAI
 from django.conf import settings
 
 class YouTubeService:
@@ -90,7 +90,7 @@ class SpotifyService:
 
 class OpenAIService:
     def __init__(self):
-        openai.api_key = settings.OPENAI_API_KEY
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
     def identify_original_song(self, video_title):
         try:
@@ -106,8 +106,8 @@ class OpenAIService:
             confidence: [0-1]
             """
             
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are a music expert who can identify cover songs and their original versions."},
                     {"role": "user", "content": prompt}
