@@ -21,6 +21,7 @@ def sync_playlist(request):
         if form.is_valid():
             sync_job = form.save(commit=False)
             sync_job.user = request.user
+            sync_job.status = 'pending'
             
             # Check if an existing playlist was selected
             existing_playlist_id = request.POST.get('existing_playlist')
@@ -44,78 +45,14 @@ def sync_playlist(request):
             
             sync_job.save()
 
-            # Start the sync process
-            youtube_service = YouTubeService()
-            spotify_service = SpotifyService(request.user)
-            openai_service = OpenAIService()
+            # Start the sync process asynchronously
+            from .tasks import sync_playlist_task
+            task = sync_playlist_task.delay(sync_job.id)
+            sync_job.task_id = task.id
+            sync_job.save()
 
-            try:
-                # Get YouTube videos (from playlist or channel)
-                videos = youtube_service.get_videos_from_url(sync_job.youtube_playlist_url)
-                total_items = len(videos)
-                
-                if total_items == 0:
-                    raise Exception("No videos found.")
-                
-                if total_items > 100:
-                    messages.warning(request, f"Large collection detected ({total_items} videos). This may take a while.")
-                
-                # Process each video
-                processed_count = 0
-                for video in videos:
-                    processed_count += 1
-                    if processed_count % 10 == 0:
-                        messages.info(request, f"Processing video {processed_count} of {total_items}...")
-                    
-                    # Use OpenAI to identify if it's a cover and get original artist/song
-                    original_info = openai_service.identify_original_song(video['title'])
-                    
-                    if original_info:
-                        # Search Spotify for the original song
-                        spotify_track = spotify_service.search_track(
-                            original_info['artist'],
-                            original_info['song']
-                        )
-                        
-                        if spotify_track:
-                            # Create track mapping
-                            TrackMapping.objects.create(
-                                sync_job=sync_job,
-                                youtube_video_id=video['id'],
-                                youtube_video_title=video['title'],
-                                original_artist=original_info['artist'],
-                                original_song=original_info['song'],
-                                spotify_track_id=spotify_track['id'],
-                                spotify_track_name=spotify_track['name'],
-                                spotify_artist_name=spotify_track['artists'][0]['name'],
-                                confidence_score=original_info['confidence']
-                            )
-
-                sync_job.status = 'completed'
-                sync_job.save()
-                
-                messages.success(request, f"Successfully processed {total_items} videos!")
-                return redirect('playlist_sync:review', sync_job.id)
-            except SpotifyException as e:
-                sync_job.status = 'failed'
-                sync_job.save()
-                if e.http_status == 401:
-                    messages.error(request, "Your Spotify session has expired. Please reconnect your account.")
-                    return redirect('social:begin', 'spotify')
-                else:
-                    return render(request, 'playlist_sync/sync_playlist.html', {
-                        'form': form,
-                        'error': f"Spotify API error: {str(e)}",
-                        'spotify_playlists': spotify_playlists
-                    })
-            except Exception as e:
-                sync_job.status = 'failed'
-                sync_job.save()
-                return render(request, 'playlist_sync/sync_playlist.html', {
-                    'form': form,
-                    'error': f'Error during sync: {str(e)}',
-                    'spotify_playlists': spotify_playlists
-                })
+            messages.info(request, "Playlist sync started. This may take a while. You'll be notified when it's complete.")
+            return redirect('playlist_sync:review', sync_job.id)
     else:
         form = SyncJobForm()
         
@@ -192,4 +129,31 @@ def get_playlists(request):
             return JsonResponse({'error': 'Spotify token expired'}, status=401)
         return JsonResponse({'error': str(e)}, status=500)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500) 
+        return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def get_sync_status(request, job_id):
+    """API endpoint to check sync job status"""
+    try:
+        sync_job = SyncJob.objects.get(id=job_id, user=request.user)
+        if sync_job.task_id:
+            from celery.result import AsyncResult
+            task_result = AsyncResult(sync_job.task_id)
+            
+            response_data = {
+                'status': sync_job.status,
+                'task_status': task_result.status,
+            }
+            
+            if task_result.status == 'PROGRESS':
+                response_data.update(task_result.info)
+            elif task_result.status == 'SUCCESS':
+                response_data['result'] = task_result.get()
+            elif task_result.status == 'FAILURE':
+                response_data['error'] = str(task_result.result)
+                
+            return JsonResponse(response_data)
+        else:
+            return JsonResponse({'status': sync_job.status})
+    except SyncJob.DoesNotExist:
+        return JsonResponse({'error': 'Job not found'}, status=404) 

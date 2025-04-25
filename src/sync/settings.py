@@ -173,4 +173,24 @@ LOGGING = {
             'level': 'DEBUG',  # Set to INFO in production
         },
     },
-} 
+}
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Add logging for Celery
+LOGGING['loggers'].update({
+    'celery': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+    'celery.task': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    }
+}) 

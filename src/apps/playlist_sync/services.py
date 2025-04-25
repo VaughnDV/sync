@@ -227,7 +227,7 @@ class OpenAIService:
             If it is a cover song or an original song or lesson for a song, identify the original artist and song name.
             Title: "{video_title}"
             
-            Respond in this format:
+            Respond in this exact format:
             is_cover: true/false
             artist: [original artist name]
             song: [original song name]
@@ -238,27 +238,41 @@ class OpenAIService:
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a music expert who can identify cover songs and their original versions."},
+                    {"role": "system", "content": "You are a music expert who can identify cover songs and their original versions. Always respond in the exact format specified."},
                     {"role": "user", "content": prompt}
                 ]
             )
             
             result = response.choices[0].message.content
             logger.debug(f"OpenAI response: {result}")
-            lines = result.split('\n')
             
-            if 'is_cover: true' in lines[0].lower():
+            # Parse the response
+            lines = [line.strip() for line in result.split('\n') if line.strip()]
+            if len(lines) < 4:
+                logger.warning("Invalid response format from OpenAI")
+                return None
+                
+            is_cover = 'is_cover: true' in lines[0].lower()
+            if not is_cover:
+                logger.info("No cover song identified")
+                return None
+                
+            try:
                 artist = lines[1].split(': ')[1].strip()
                 song = lines[2].split(': ')[1].strip()
-                confidence = float(lines[3].split(': ')[1].strip())
+                confidence_str = lines[3].split(': ')[1].strip()
+                confidence = float(confidence_str)
+                
                 logger.info(f"Identified cover song: {song} by {artist} (confidence: {confidence})")
                 return {
                     'artist': artist,
                     'song': song,
                     'confidence': confidence
                 }
-            logger.info("No cover song identified")
-            return None
+            except (IndexError, ValueError) as e:
+                logger.error(f"Error parsing OpenAI response: {str(e)}")
+                return None
+                
         except Exception as e:
             logger.error(f"OpenAI API error: {str(e)}")
             raise Exception(f'OpenAI API error: {str(e)}') 
