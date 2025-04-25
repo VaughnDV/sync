@@ -227,20 +227,23 @@ class OpenAIService:
             If it is a cover song or an original song or lesson for a song, identify the original artist and song name.
             Title: "{video_title}"
             
-            Respond in this exact format:
-            is_cover: true/false
-            artist: [original artist name]
-            song: [original song name]
-            confidence: [0-1]
+            Respond in JSON format with the following schema:
+            {{
+                "is_cover": boolean,
+                "artist": string,
+                "song": string,
+                "confidence": number
+            }}
             """
             
             logger.debug("Sending request to OpenAI API")
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a music expert who can identify cover songs and their original versions. Always respond in the exact format specified."},
+                    {"role": "system", "content": "You are a music expert who can identify cover songs and their original versions. Always respond in valid JSON format matching the provided schema."},
                     {"role": "user", "content": prompt}
-                ]
+                ],
+                response_format={ "type": "json_object" }
             )
             
             result = response.choices[0].message.content
