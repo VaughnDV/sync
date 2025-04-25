@@ -32,6 +32,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./docker/db-entrypoint.sh:/docker-entrypoint-initdb.d/db-entrypoint.sh
+    entrypoint: /docker-entrypoint-initdb.d/db-entrypoint.sh
     env_file:
       - .env
     environment:
