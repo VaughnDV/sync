@@ -168,5 +168,9 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+        'apps.playlist_sync.services': {
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Set to INFO in production
+        },
     },
 } 
