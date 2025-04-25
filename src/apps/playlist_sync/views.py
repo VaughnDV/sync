@@ -4,10 +4,16 @@ from django.contrib import messages
 from .models import SyncJob, TrackMapping
 from .forms import SyncJobForm, TrackMappingForm
 from .services import YouTubeService, SpotifyService, OpenAIService
+from spotipy.exceptions import SpotifyException
+from django.urls import reverse
 
 @login_required
 def sync_playlist(request):
     if request.method == 'POST':
+        if not request.user.spotify_access_token:
+            messages.error(request, "Please connect your Spotify account first.")
+            return redirect('social:begin', 'spotify')
+
         form = SyncJobForm(request.POST)
         if form.is_valid():
             sync_job = form.save(commit=False)
@@ -53,14 +59,28 @@ def sync_playlist(request):
                 sync_job.save()
                 
                 return redirect('playlist_sync:review', sync_job.id)
+            except SpotifyException as e:
+                sync_job.status = 'failed'
+                sync_job.save()
+                if e.http_status == 401:
+                    error_msg = "Your Spotify session has expired. Please reconnect your account."
+                else:
+                    error_msg = f"Spotify API error: {str(e)}"
+                return render(request, 'playlist_sync/sync_playlist.html', {
+                    'form': form,
+                    'error': error_msg
+                })
             except Exception as e:
                 sync_job.status = 'failed'
                 sync_job.save()
-                messages.error(request, f'Error during sync: {str(e)}')
+                return render(request, 'playlist_sync/sync_playlist.html', {
+                    'form': form,
+                    'error': f'Error during sync: {str(e)}'
+                })
     else:
         form = SyncJobForm()
 
-    return render(request, 'playlist_sync/sync.html', {'form': form})
+    return render(request, 'playlist_sync/sync_playlist.html', {'form': form})
 
 @login_required
 def review_sync(request, job_id):
