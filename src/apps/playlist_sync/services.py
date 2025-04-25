@@ -258,9 +258,9 @@ class OpenAIService:
                 return None
                 
             try:
-                artist = lines[1].split(': ')[1].strip()
-                song = lines[2].split(': ')[1].strip()
-                confidence_str = lines[3].split(': ')[1].strip()
+                artist = lines[1].split(': ')[1].strip().strip('[]')
+                song = lines[2].split(': ')[1].strip().strip('[]')
+                confidence_str = lines[3].split(': ')[1].strip().strip('[]')
                 confidence = float(confidence_str)
                 
                 logger.info(f"Identified cover song: {song} by {artist} (confidence: {confidence})")
