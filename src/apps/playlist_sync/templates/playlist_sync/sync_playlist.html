@@ -54,9 +54,9 @@
                             <div class="mt-2">
                                 <div class="flex items-center gap-2">
                                     <select name="existing_playlist" id="existing_playlist"
-                                        class="block w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                        class="hidden w-full rounded-md border-gray-600 bg-gray-700 text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                         disabled>
-                                        <option value="">-- Click "Load Playlists" to see your playlists --</option>
+                                        <option value="">-- Select a playlist --</option>
                                     </select>
                                     <button type="button" id="load-playlists-btn"
                                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -172,7 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 throw new Error('Failed to fetch playlists');
             }
-            const playlists = await response.json();
+            const data = await response.json();
+            const playlists = data.playlists;
 
             // Clear existing options
             existingPlaylistSelect.innerHTML = '<option value="">-- Select a playlist --</option>';
@@ -185,16 +186,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 existingPlaylistSelect.appendChild(option);
             });
 
-            // Enable the select
-            existingPlaylistSelect.disabled = false;
+            if (playlists.length > 0) {
+                // Show dropdown and hide button if we have playlists
+                existingPlaylistSelect.classList.remove('hidden');
+                existingPlaylistSelect.disabled = false;
+                loadPlaylistsBtn.classList.add('hidden');
+            } else {
+                // If no playlists, show a message
+                existingPlaylistSelect.innerHTML = '<option value="">No playlists found</option>';
+                loadPlaylistsBtn.disabled = false;
+                loadPlaylistsBtn.textContent = 'Retry Loading Playlists';
+            }
 
         } catch (error) {
             console.error('Error loading playlists:', error);
             alert('Failed to load playlists. Please try again.');
-        } finally {
-            // Reset button state
             loadPlaylistsBtn.disabled = false;
-            loadPlaylistsBtn.textContent = 'Load Playlists';
+            loadPlaylistsBtn.textContent = 'Retry Loading Playlists';
         }
     });
 });
