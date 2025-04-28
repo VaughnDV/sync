@@ -42,7 +42,7 @@ services:
 
   celery:
     build: .
-    command: celery -A src.sync worker -l INFO
+    command: celery -A src.sync worker -l INFO --concurrency=4 --pool=prefork
     volumes:
       - .:/app
     depends_on:
@@ -52,6 +52,9 @@ services:
       - rabbitmq
     env_file:
       - .env
+    environment:
+      - C_FORCE_ROOT=true
+    restart: unless-stopped
 
   celery-beat:
     build: .
@@ -65,6 +68,9 @@ services:
       - rabbitmq
     env_file:
       - .env
+    environment:
+      - C_FORCE_ROOT=true
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
