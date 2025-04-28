@@ -17,4 +17,3 @@ python manage.py migrate
 echo "COLLECTING STATIC FILES"
 python manage.py collectstatic --no-input --clear
 echo "Entry point script finished"
-exec "$@" 
