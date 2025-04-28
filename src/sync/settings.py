@@ -180,7 +180,10 @@ LOGGING = {
 REDIS_URL = "redis://{host}:{port}".format(
         host=os.environ.get("REDIS_HOST", "redis"), port=os.environ.get("REDIS_PORT", "6379")
     )
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_BROKER_URL = "amqp://guest:guest@{host}:5672//".format(
+        host=os.environ.get("RABBITMQ_HOST", "rabbitmq")
+    )
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

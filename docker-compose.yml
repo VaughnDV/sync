@@ -11,6 +11,7 @@ services:
     depends_on:
       - redis
       - db
+      - rabbitmq
     env_file:
       - .env
 
@@ -30,6 +31,15 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
   celery:
     build: .
     command: celery -A src.sync worker -l INFO
@@ -39,6 +49,7 @@ services:
       - web
       - redis
       - db
+      - rabbitmq
     env_file:
       - .env
 
@@ -51,6 +62,7 @@ services:
       - web
       - redis
       - db
+      - rabbitmq
     env_file:
       - .env
 
@@ -69,4 +81,5 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  rabbitmq_data:
   static_volume:
