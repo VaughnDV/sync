@@ -49,7 +49,6 @@ ENV PATH="/home/appuser/.local/bin:${PATH}"
 
 # Use the entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]
-RUN chmod +x entrypoint.prod.sh
 
 # Run the application
 CMD ["poetry", "run", "uvicorn", "src.sync.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
