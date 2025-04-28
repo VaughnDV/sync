@@ -52,8 +52,7 @@ services:
       - rabbitmq
     env_file:
       - .env
-    environment:
-      - C_FORCE_ROOT=true
+    user: "1000:1000"
     restart: unless-stopped
 
   celery-beat:
@@ -68,8 +67,7 @@ services:
       - rabbitmq
     env_file:
       - .env
-    environment:
-      - C_FORCE_ROOT=true
+    user: "1000:1000"
     restart: unless-stopped
 
   nginx:

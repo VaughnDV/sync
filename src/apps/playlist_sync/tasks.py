@@ -83,31 +83,20 @@ def sync_playlist_task(self, job_id):
                 logger.error(f"Error processing video {video['title']}: {str(e)}")
                 continue
 
+        # Update job status to completed
         with transaction.atomic():
             sync_job.status = 'completed'
             sync_job.save()
-        
-        logger.info(f"Successfully completed sync task for job {job_id}")
+            
         return {
-            'current': total_items,
-            'total': total_items,
-            'status': 'Task completed!',
-            'result': 'Success'
+            'status': 'completed',
+            'total_videos': total_items,
+            'processed_videos': processed_count
         }
-        
-    except SpotifyException as e:
-        logger.error(f"Spotify API error in job {job_id}: {str(e)}")
-        with transaction.atomic():
-            sync_job.status = 'failed'
-            sync_job.save()
-        if e.http_status == 401:
-            raise Exception("Spotify session expired. Please reconnect your account.")
-        else:
-            raise Exception(f"Spotify API error: {str(e)}")
             
     except Exception as e:
-        logger.error(f"Error during sync for job {job_id}: {str(e)}")
+        logger.error(f"Error in sync_playlist_task: {str(e)}")
         with transaction.atomic():
             sync_job.status = 'failed'
             sync_job.save()
-        raise Exception(f'Error during sync: {str(e)}') 
+        raise self.retry(exc=e, countdown=60) 
