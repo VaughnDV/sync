@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 if [ "$DATABASE" = "postgres" ]
 then
@@ -12,8 +13,12 @@ then
     echo "PostgreSQL started"
 fi
 
-echo "MAKING MIGRATIONS"
+echo "Making migrations..."
 python manage.py migrate
-echo "COLLECTING STATIC FILES"
+
+echo "Collecting static files..."
 python manage.py collectstatic --no-input --clear
+
 echo "Entry point script finished"
+
+exec "$@"

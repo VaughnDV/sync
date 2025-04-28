@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
-    command: uvicorn sync.asgi:application --host 0.0.0.0 --port 8000 --log-level debug --lifespan off --timeout-keep-alive 300
+    command: uvicorn src.sync.asgi:application --host 0.0.0.0 --port 8000 --log-level debug --lifespan off --timeout-keep-alive 300
     volumes:
       - .:/app
     expose:
@@ -32,7 +32,7 @@ services:
 
   celery:
     build: .
-    command: celery -A sync worker -l INFO
+    command: celery -A src.sync worker -l INFO
     volumes:
       - .:/app
     depends_on:
@@ -44,7 +44,7 @@ services:
 
   celery-beat:
     build: .
-    command: celery -A sync beat -l INFO
+    command: celery -A src.sync beat -l INFO
     volumes:
       - .:/app
     depends_on:
