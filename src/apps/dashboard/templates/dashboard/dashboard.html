@@ -7,22 +7,22 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-7xl mx-auto">
         <h1 class="text-3xl font-bold mb-8 text-gray-100">Welcome, {{ user.username }}!</h1>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div class="bg-gray-800 shadow-lg rounded-lg p-6 border border-gray-700">
                 <h2 class="text-xl font-semibold mb-4 text-gray-200">YouTube to Spotify Sync</h2>
                 <p class="text-gray-400 mb-4">Sync your YouTube playlist with Spotify, automatically identifying cover songs and finding the original tracks.</p>
-                <a href="{% url 'playlist_sync:sync_playlist' %}" 
+                <a href="{% url 'playlist_sync:sync_playlist' %}"
                    class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Start Syncing
                 </a>
             </div>
-            
+
             {% if not user.spotify_connected %}
             <div class="bg-gray-800 shadow-lg rounded-lg p-6 border border-gray-700">
                 <h2 class="text-xl font-semibold mb-4 text-gray-200">Connect Spotify</h2>
                 <p class="text-gray-400 mb-4">Connect your Spotify account to enable playlist syncing.</p>
-                <a href="{% url 'social:begin' 'spotify' %}" 
+                <a href="{% url 'social:begin' 'spotify' %}"
                    class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     Connect Spotify
                 </a>
@@ -70,7 +70,7 @@
                                 {% endif %}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                     {% if sync.status == 'completed' %}bg-green-900 text-green-200
                                     {% elif sync.status == 'failed' %}bg-red-900 text-red-200
                                     {% elif sync.status == 'processing' %}bg-yellow-900 text-yellow-200
@@ -90,4 +90,4 @@
         {% endif %}
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

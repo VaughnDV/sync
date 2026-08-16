@@ -22,7 +22,7 @@ typecheck:
 	poetry run mypy src/core src/providers src/apps/playlist_sync/diffing.py src/apps/playlist_sync/matching.py src/apps/playlist_sync/state.py src/apps/playlist_sync/jobs.py
 
 test:
-	$(PYTEST) tests/unit tests/failure
+	$(PYTEST) tests/unit tests/failure tests/integration
 
 test-integration:
 	$(PYTEST) tests/integration

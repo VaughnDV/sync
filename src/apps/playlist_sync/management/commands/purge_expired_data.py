@@ -24,7 +24,5 @@ class Command(BaseCommand):
         token_count = disconnected.count()
         disconnected.update(spotify_access_token="", spotify_refresh_token="", spotify_token_expires_at=None)
         self.stdout.write(
-            self.style.SUCCESS(
-                f"purged cache={cache_deleted} jobs={jobs_deleted} disconnected_tokens={token_count}"
-            )
+            self.style.SUCCESS(f"purged cache={cache_deleted} jobs={jobs_deleted} disconnected_tokens={token_count}")
         )

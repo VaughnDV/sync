@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -10,7 +11,7 @@ from core.metrics import provider_latency
 
 @contextmanager
 def span(
-    logger,
+    logger: logging.Logger,
     name: str,
     *,
     job_id: int | None = None,
