@@ -1,0 +1,14 @@
+title = "Sync gitleaks config"
+
+[allowlist]
+description = "Documented development placeholders, not live secrets"
+regexes = [
+  '''MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=''',
+  '''django-insecure''',
+  '''ci-secret-key''',
+  '''demo-secret''',
+]
+paths = [
+  '''tmp/''',
+  '''docs/''',
+]
