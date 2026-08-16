@@ -6,7 +6,7 @@ Use the Makefile for developer checks:
 make install            # poetry install and pre-commit hooks
 make lint               # ruff lint + format check
 make typecheck          # mypy on new typed modules
-make test               # unit and failure tests
+make test               # full suite with an 80% coverage gate
 make test-integration   # Django/Celery/offline flow
 make check-migrations   # python src/manage.py makemigrations --check --dry-run
 make audit              # pip-audit

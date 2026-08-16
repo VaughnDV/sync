@@ -1,5 +1,9 @@
 from sync.settings import *  # noqa: F403
 
+DEBUG = True
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 SYNC_TESTING = True
 SYNC_PROVIDER_MODE = "fake"
 CELERY_TASK_ALWAYS_EAGER = True

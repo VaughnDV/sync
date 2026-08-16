@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   web:
     build: .
     command: >
-      sh -c "chown -R 1000:1000 /app/src/static && 
-             python manage.py collectstatic --noinput && 
+      sh -c "chown -R 1000:1000 /app/src/static &&
+             python manage.py collectstatic --noinput &&
              uvicorn src.sync.asgi:application --host 0.0.0.0 --port 8000 --log-level debug --lifespan off --timeout-keep-alive 300"
     volumes:
       - .:/app
@@ -42,7 +40,7 @@ services:
   celery:
     build: .
     command: >
-      sh -c "python manage.py migrate && 
+      sh -c "python manage.py migrate &&
              celery -A src.sync worker -l INFO --concurrency=4 --pool=prefork"
     volumes:
       - .:/app
@@ -59,7 +57,7 @@ services:
   celery-beat:
     build: .
     command: >
-      sh -c "python manage.py migrate && 
+      sh -c "python manage.py migrate &&
              celery -A src.sync beat -l INFO"
     volumes:
       - .:/app

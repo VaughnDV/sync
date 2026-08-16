@@ -107,13 +107,13 @@ scripts/demo.py    one-command offline run
 | --- | --- |
 | `make lint` | Ruff lint and format |
 | `make typecheck` | mypy on typed modules |
-| `make test` | Unit and failure tests (coverage gate 60%) |
+| `make test` | Unit, failure and integration tests (coverage gate 80%) |
 | `make test-integration` | Views, CSRF, offline flow |
 | `make check-migrations` | `makemigrations --check` |
 | `make audit` | pip-audit |
 | `make demo` | Offline fixture run |
 
-CI (GitHub Actions) runs quality, unit tests on 3.11/3.12, Postgres integration, gitleaks, pip-audit, Trivy and a smoke demo.
+CI (GitHub Actions) runs quality, the full test suite with coverage on 3.11/3.12, Postgres integration, gitleaks, pip-audit, Trivy and a smoke demo.
 
 Health: `GET /health/live/`, `GET /health/ready/`. Metrics: `GET /metrics/`.
 

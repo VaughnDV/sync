@@ -41,7 +41,7 @@ COPY . .
 
 # Copy and set up entrypoint and init-db script
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh 
+RUN chmod +x /entrypoint.sh
 
 # Set PYTHONPATH to include src directory
 ENV PYTHONPATH=/app/src

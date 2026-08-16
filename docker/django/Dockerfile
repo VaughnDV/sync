@@ -35,4 +35,4 @@ poetry run python src/manage.py runserver 0.0.0.0:8000' > /app/start.sh && \
 chmod +x /app/start.sh
 
 # Run the application
-CMD ["/app/start.sh"] 
+CMD ["/app/start.sh"]
