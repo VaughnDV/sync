@@ -18,13 +18,22 @@
                 </a>
             </div>
             
-            {% if not user.spotify_access_token %}
+            {% if not user.spotify_connected %}
             <div class="bg-gray-800 shadow-lg rounded-lg p-6 border border-gray-700">
                 <h2 class="text-xl font-semibold mb-4 text-gray-200">Connect Spotify</h2>
                 <p class="text-gray-400 mb-4">Connect your Spotify account to enable playlist syncing.</p>
                 <a href="{% url 'social:begin' 'spotify' %}" 
                    class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     Connect Spotify
+                </a>
+            </div>
+            {% else %}
+            <div class="bg-gray-800 shadow-lg rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-semibold mb-4 text-gray-200">Spotify connected</h2>
+                <p class="text-gray-400 mb-4">Tokens are stored encrypted. Disconnect to revoke local access.</p>
+                <a href="{% url 'accounts:disconnect_spotify' %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-600 text-base font-medium rounded-md shadow-sm text-gray-200 hover:bg-gray-700">
+                    Disconnect Spotify
                 </a>
             </div>
             {% endif %}

@@ -28,10 +28,12 @@
                            class="text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium">
                             Dashboard
                         </a>
-                        <a href="{% url 'accounts:logout' %}" 
-                           class="text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium">
-                            Logout
-                        </a>
+                        <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium">
+                                Logout
+                            </button>
+                        </form>
                     {% else %}
                         <a href="{% url 'accounts:login' %}" 
                            class="text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium">
