@@ -1,9 +1,9 @@
 import pytest
 
-from core.exceptions import SpotifyPartialBatch, SpotifyRateLimited, SpotifyRevoked
-from providers.fakes import FakeSpotifyClient
 from apps.playlist_sync.jobs import apply_job, classify_job
 from apps.playlist_sync.models import SyncJob, TrackMapping
+from core.exceptions import SpotifyPartialBatch, SpotifyRateLimited, SpotifyRevoked
+from providers.fakes import FakeSpotifyClient
 
 
 @pytest.mark.django_db

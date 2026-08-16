@@ -97,9 +97,7 @@ def classify_job(
         job.progress_total = len(videos)
         job.save(update_fields=["source_kind", "progress_total", "updated_at"])
 
-        existing = set(
-            TrackMapping.objects.filter(sync_job=job).values_list("youtube_video_id", flat=True)
-        )
+        existing = set(TrackMapping.objects.filter(sync_job=job).values_list("youtube_video_id", flat=True))
         for index, video in enumerate(videos, start=1):
             _check_cancel(job)
             _check_timeout(job)

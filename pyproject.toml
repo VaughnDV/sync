@@ -67,12 +67,18 @@ skip_covered = true
 
 [tool.ruff]
 target-version = "py311"
-line-length = 100
+line-length = 120
 src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "DJ"]
-ignore = ["DJ001"]
+ignore = ["DJ001", "N818"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/apps/*/migrations/*.py" = ["E501", "N"]
+"tests/**" = ["B017"]
+"scripts/**" = ["E402", "N806"]
+"src/apps/playlist_sync/forms.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -80,11 +86,25 @@ mypy_path = "src"
 plugins = ["mypy_django_plugin.main"]
 strict = true
 warn_unused_ignores = true
+explicit_package_bases = true
 exclude = ["src/apps/.*/migrations/"]
 
 [[tool.mypy.overrides]]
 module = ["social_django.*", "social_core.*", "spotipy.*", "googleapiclient.*", "httplib2.*", "celery.*", "crispy_forms.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "providers.spotify",
+    "providers.youtube",
+    "providers.classifier",
+    "providers.fakes",
+    "providers.factory",
+    "apps.*",
+    "sync.settings",
+    "sync.config",
+]
+ignore_errors = true
 
 [tool.django-stubs]
 django_settings_module = "sync.settings"

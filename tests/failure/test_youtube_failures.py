@@ -1,9 +1,9 @@
 import pytest
 
+from apps.playlist_sync.jobs import classify_job
 from core.exceptions import YoutubePaginationFailed, YoutubeQuotaExceeded
 from providers.fakes import FakeYouTubeClient
 from providers.interfaces import ParsedYoutubeInput, YoutubeInputKind
-from apps.playlist_sync.jobs import classify_job
 
 
 @pytest.mark.django_db

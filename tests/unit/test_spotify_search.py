@@ -1,5 +1,5 @@
-from providers.interfaces import SpotifyArtist, SpotifyTrack
 from apps.playlist_sync.matching import rank_spotify_tracks
+from providers.interfaces import SpotifyArtist, SpotifyTrack
 
 
 def _track(track_id, name, artist, popularity=0):

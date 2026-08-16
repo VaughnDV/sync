@@ -98,3 +98,6 @@ class ClassificationCache(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["expires_at"])]
+
+    def __str__(self) -> str:
+        return self.cache_key

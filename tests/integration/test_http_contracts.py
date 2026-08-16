@@ -1,9 +1,8 @@
 import json
 from pathlib import Path
 
-from providers.interfaces import SpotifyArtist, SpotifyTrack, YoutubeVideo
 from apps.playlist_sync.matching import rank_spotify_tracks
-
+from providers.interfaces import SpotifyArtist, SpotifyTrack, YoutubeVideo
 
 FIXTURE_DIR = Path(__file__).resolve().parent.parent / "fixtures"
 

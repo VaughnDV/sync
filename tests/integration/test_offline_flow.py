@@ -2,10 +2,14 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
-from providers.fakes import DEMO_PLAYLIST_URL
 from apps.playlist_sync.jobs import apply_job, classify_job
 from apps.playlist_sync.models import SyncJob, TrackMapping
-from providers.fakes import FakeSongClassifier, FakeSpotifyClient, FakeYouTubeClient
+from providers.fakes import (
+    DEMO_PLAYLIST_URL,
+    FakeSongClassifier,
+    FakeSpotifyClient,
+    FakeYouTubeClient,
+)
 
 
 @pytest.mark.django_db

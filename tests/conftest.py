@@ -10,7 +10,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tests.settings")
 import pytest
 
 from providers.factory import reset_fakes
-from providers.fakes import DEMO_PLAYLIST_URL, FakeSongClassifier, FakeSpotifyClient, FakeYouTubeClient
+from providers.fakes import (
+    DEMO_PLAYLIST_URL,
+    FakeSongClassifier,
+    FakeSpotifyClient,
+    FakeYouTubeClient,
+)
 
 
 def pytest_configure():
@@ -39,9 +44,7 @@ def _reset_provider_fakes():
 def user(db):
     from django.contrib.auth import get_user_model
 
-    account = get_user_model().objects.create_user(
-        email="demo@example.com", username="demo", password="password123"
-    )
+    account = get_user_model().objects.create_user(email="demo@example.com", username="demo", password="password123")
     account.spotify_connected = True
     account.spotify_access_token = "access-token"
     account.spotify_refresh_token = "refresh-token"
@@ -53,9 +56,7 @@ def user(db):
 def other_user(db):
     from django.contrib.auth import get_user_model
 
-    return get_user_model().objects.create_user(
-        email="other@example.com", username="other", password="password123"
-    )
+    return get_user_model().objects.create_user(email="other@example.com", username="other", password="password123")
 
 
 @pytest.fixture

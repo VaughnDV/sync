@@ -1,10 +1,10 @@
 import pytest
 
+from apps.playlist_sync.jobs import classify_job
+from apps.playlist_sync.models import TrackMapping
 from core.exceptions import AIRateLimited
 from providers.fakes import FakeSongClassifier
 from providers.interfaces import YoutubeVideo
-from apps.playlist_sync.jobs import classify_job
-from apps.playlist_sync.models import SyncJob, TrackMapping
 
 
 @pytest.mark.django_db

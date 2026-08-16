@@ -1,7 +1,9 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import UserCreationForm
+
 from .models import User
+
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -9,16 +11,17 @@ class UserRegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('email', 'password1', 'password2')
+        fields = ("email", "password1", "password2")
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
+        user.email = self.cleaned_data["email"]
         # Generate a username from email
-        user.username = self.cleaned_data['email'].split('@')[0]
+        user.username = self.cleaned_data["email"].split("@")[0]
         if commit:
             user.save()
         return user
+
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField()
@@ -26,15 +29,15 @@ class UserLoginForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        email = cleaned_data.get('email')
-        password = cleaned_data.get('password')
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
 
         if email and password:
             user = authenticate(email=email, password=password)
             if user is None:
                 raise forms.ValidationError("Invalid email or password")
-            cleaned_data['user'] = user
+            cleaned_data["user"] = user
         return cleaned_data
 
     def get_user(self):
-        return self.cleaned_data.get('user') 
+        return self.cleaned_data.get("user")

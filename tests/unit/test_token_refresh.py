@@ -1,6 +1,6 @@
-import pytest
 from datetime import timedelta
 
+import pytest
 from django.utils import timezone
 
 from core.exceptions import SpotifyRevoked

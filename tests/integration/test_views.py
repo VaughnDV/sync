@@ -4,8 +4,8 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
-from providers.fakes import DEMO_PLAYLIST_URL
 from apps.playlist_sync.models import SyncJob
+from providers.fakes import DEMO_PLAYLIST_URL
 
 
 @pytest.mark.django_db

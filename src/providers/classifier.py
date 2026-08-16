@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import logging
 import time
+from datetime import timedelta
 from typing import Any
 
 from django.conf import settings
@@ -141,7 +142,7 @@ class LiveSongClassifier:
     def _write_cache(self, video: YoutubeVideo, parsed: SongClassification) -> None:
         if self._cache_model is None:
             return
-        expires = timezone.now() + timezone.timedelta(days=settings.SYNC_CLASSIFICATION_CACHE_DAYS)
+        expires = timezone.now() + timedelta(days=settings.SYNC_CLASSIFICATION_CACHE_DAYS)
         self._cache_model.objects.update_or_create(
             cache_key=self._cache_key(video),
             defaults={

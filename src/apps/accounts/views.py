@@ -1,9 +1,9 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView
-from django.urls import reverse_lazy
 
 from providers.factory import get_spotify_client
 

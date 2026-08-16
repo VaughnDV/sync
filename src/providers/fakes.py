@@ -39,21 +39,11 @@ DEMO_VIDEOS: tuple[YoutubeVideo, ...] = (
 )
 
 DEMO_CLASSIFICATIONS: dict[str, SongClassification] = {
-    "vidHello01": SongClassification(
-        classification="music", artist="Adele", song="Hello", confidence=0.96
-    ),
-    "vidWonder1": SongClassification(
-        classification="music", artist="Oasis", song="Wonderwall", confidence=0.91
-    ),
-    "vidPython1": SongClassification(
-        classification="not_music", artist=None, song=None, confidence=0.99
-    ),
-    "vidMaybe01": SongClassification(
-        classification="uncertain", artist=None, song=None, confidence=0.41
-    ),
-    "vidCreep01": SongClassification(
-        classification="music", artist="Radiohead", song="Creep", confidence=0.94
-    ),
+    "vidHello01": SongClassification(classification="music", artist="Adele", song="Hello", confidence=0.96),
+    "vidWonder1": SongClassification(classification="music", artist="Oasis", song="Wonderwall", confidence=0.91),
+    "vidPython1": SongClassification(classification="not_music", artist=None, song=None, confidence=0.99),
+    "vidMaybe01": SongClassification(classification="uncertain", artist=None, song=None, confidence=0.41),
+    "vidCreep01": SongClassification(classification="music", artist="Radiohead", song="Creep", confidence=0.94),
 }
 
 DEMO_CATALOG: tuple[SpotifyTrack, ...] = (
@@ -230,9 +220,7 @@ class FakeSongClassifier:
             raise AIInvalidSchema()
         parsed = self._results.get(video.video_id)
         if parsed is None:
-            parsed = SongClassification(
-                classification="uncertain", artist=None, song=None, confidence=0.2
-            )
+            parsed = SongClassification(classification="uncertain", artist=None, song=None, confidence=0.2)
         result = ClassificationResult(
             classification=parsed.classification.value,
             artist=parsed.artist,

@@ -4,11 +4,10 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from providers.schemas import PROMPT_VERSION, SongClassification
+from core.exceptions import AIInvalidSchema, AIRefusal, AITimeout
 from providers.fakes import FakeSongClassifier
 from providers.interfaces import YoutubeVideo
-from core.exceptions import AIInvalidSchema, AIRefusal, AITimeout
-
+from providers.schemas import PROMPT_VERSION, SongClassification
 
 FIXTURES = json.loads(
     (Path(__file__).resolve().parents[2] / "src/providers/fixtures/classifier_samples.json").read_text()

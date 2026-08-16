@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Sequence
 from datetime import timedelta
-from typing import Sequence
 
 import requests
 import spotipy
@@ -110,7 +110,12 @@ class LiveSpotifyClient:
         playlists: list[SpotifyPlaylist] = []
         offset = 0
         while True:
-            payload = self._call(lambda: self._client.current_user_playlists(limit=50, offset=offset))
+            current_offset = offset
+            payload = self._call(
+                lambda current_offset=current_offset: self._client.current_user_playlists(
+                    limit=50, offset=current_offset
+                )
+            )
             for item in payload.get("items") or []:
                 playlists.append(
                     SpotifyPlaylist(
@@ -136,12 +141,13 @@ class LiveSpotifyClient:
         track_ids: list[str] = []
         offset = 0
         while True:
+            current_offset = offset
             payload = self._call(
-                lambda: self._client.playlist_items(
+                lambda current_offset=current_offset: self._client.playlist_items(
                     playlist_id,
                     fields="items(track(id)),next",
                     limit=100,
-                    offset=offset,
+                    offset=current_offset,
                 )
             )
             for item in payload.get("items") or []:
@@ -158,7 +164,11 @@ class LiveSpotifyClient:
         query = f"artist:{artist} track:{song}"
         payload = self._call(lambda: self._client.search(q=query, type="track", limit=SEARCH_LIMIT))
         items = ((payload.get("tracks") or {}).get("items")) or []
-        ranked = sorted((self._to_track(item) for item in items), key=lambda track: self._score(track, artist, song), reverse=True)
+        ranked = sorted(
+            (self._to_track(item) for item in items),
+            key=lambda track: self._score(track, artist, song),
+            reverse=True,
+        )
         if not ranked:
             return None
         best = ranked[0]

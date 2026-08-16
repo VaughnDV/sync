@@ -16,7 +16,6 @@ def fill_idempotency_keys(apps, schema_editor):
         job.save(update_fields=["idempotency_key"])
 
 
-
 class Migration(migrations.Migration):
     dependencies = [
         ("playlist_sync", "0002_syncjob_task_id"),

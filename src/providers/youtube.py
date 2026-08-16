@@ -97,13 +97,11 @@ class LiveYouTubeClient:
         query = parsed.handle or parsed.custom_name or parsed.user_name
         if not query:
             raise YoutubeNotFound()
-        payload = self._execute(
-            self._client.search().list(part="snippet", q=query, type="channel", maxResults=1)
-        )
+        payload = self._execute(self._client.search().list(part="snippet", q=query, type="channel", maxResults=1))
         items = payload.get("items") or []
         if not items:
             raise YoutubeNotFound()
-        channel_id = ((items[0].get("id") or {}).get("channelId"))
+        channel_id = (items[0].get("id") or {}).get("channelId")
         if not channel_id:
             raise YoutubeNotFound()
         return channel_id
@@ -113,7 +111,7 @@ class LiveYouTubeClient:
         items = payload.get("items") or []
         if not items:
             raise YoutubeNotFound()
-        related = ((items[0].get("contentDetails") or {}).get("relatedPlaylists") or {})
+        related = (items[0].get("contentDetails") or {}).get("relatedPlaylists") or {}
         uploads = related.get("uploads")
         if not uploads:
             raise YoutubeNotFound()

@@ -1,8 +1,8 @@
 import pytest
+from django.contrib.admin.sites import site
 from django.db import connection
 
 from apps.accounts.models import User
-from django.contrib.admin.sites import site
 
 
 @pytest.mark.django_db
