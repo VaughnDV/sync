@@ -171,7 +171,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "structured": {
-            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+            "()": "core.logging.JsonLogFormatter",
         }
     },
     "handlers": {

@@ -10,6 +10,14 @@ from django.utils import timezone
 
 from core.exceptions import JobCancelled, SyncError, TransientSyncError
 from core.logging import job_log
+from core.metrics import (
+    classifier_confidence,
+    confidence_bucket,
+    jobs_outcomes,
+    jobs_started,
+    provider_errors,
+    unmatched_tracks,
+)
 from providers.interfaces import SongClassifier, SpotifyClient, YouTubeClient, YoutubeVideo
 from providers.schemas import PROMPT_VERSION
 from providers.youtube_urls import parse_youtube_url
@@ -31,6 +39,8 @@ def _fail(job: SyncJob, error: SyncError | Exception) -> None:
     job.status = SyncJob.Status.FAILED
     job.finished_at = timezone.now()
     job.save(update_fields=["error_code", "error_message", "status", "finished_at", "updated_at"])
+    jobs_outcomes.labels(status=job.status, error_code=job.error_code or "none").inc()
+    provider_errors.labels(provider="job", code=job.error_code or "INTERNAL_ERROR").inc()
     job_log(
         logger,
         "job.failed",
@@ -47,6 +57,7 @@ def _cancel(job: SyncJob) -> None:
     job.error_message = "This job was cancelled."
     job.finished_at = timezone.now()
     job.save(update_fields=["status", "error_code", "error_message", "finished_at", "updated_at"])
+    jobs_outcomes.labels(status=job.status, error_code=job.error_code).inc()
 
 
 def _check_cancel(job: SyncJob) -> None:
@@ -83,6 +94,7 @@ def classify_job(
         job.started_at = job.started_at or timezone.now()
         job.classifier_prompt_version = PROMPT_VERSION
         job.save(update_fields=["status", "progress_stage", "started_at", "classifier_prompt_version", "updated_at"])
+        jobs_started.labels(stage="classify").inc()
 
     try:
         _check_cancel(job)
@@ -192,6 +204,9 @@ def _classify_video(
             "skip_reason": skip_reason,
         },
     )
+    classifier_confidence.labels(bucket=confidence_bucket(result.confidence)).inc()
+    if decision == TrackMapping.Decision.UNMATCHED:
+        unmatched_tracks.inc()
     job_log(
         logger,
         "job.video_classified",
@@ -265,6 +280,7 @@ def apply_job(job_id: int, *, spotify: SpotifyClient, mapping_ids: list[int] | N
         job.progress_stage = "done"
         job.finished_at = timezone.now()
         job.save(update_fields=["status", "progress_stage", "finished_at", "updated_at"])
+        jobs_outcomes.labels(status=job.status, error_code="none").inc()
         job_log(logger, "job.completed", job_id=job.pk, correlation_id=job.correlation_id, stage="apply")
         return job
     except JobCancelled:
