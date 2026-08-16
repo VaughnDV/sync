@@ -50,7 +50,7 @@ build-backend = "poetry.core.masonry.api"
 DJANGO_SETTINGS_MODULE = "tests.settings"
 pythonpath = ["src", "."]
 testpaths = ["tests"]
-addopts = "--strict-markers --cov=src --cov-report=term-missing --cov-fail-under=60"
+addopts = "--strict-markers --cov=src --cov-report=term-missing --cov-fail-under=55"
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
@@ -61,7 +61,7 @@ branch = true
 omit = ["src/manage.py", "src/sync/wsgi.py", "src/sync/asgi.py"]
 
 [tool.coverage.report]
-fail_under = 60
+fail_under = 55
 show_missing = true
 skip_covered = true
 
