@@ -7,6 +7,8 @@
 
 Expected dependencies: PostgreSQL, Redis (Celery result backend), RabbitMQ (broker), and optionally YouTube/Spotify/OpenAI when `SYNC_PROVIDER_MODE=live`.
 
+`docker-compose.yml` does not publish Redis, RabbitMQ, or Postgres to the host. App containers reach them on the compose network. To debug brokers from the host, add a local compose override (gitignored) that binds ports to `127.0.0.1`.
+
 ## Metrics and logs
 
 - `GET /metrics/` — Prometheus counters for jobs, outcomes, retries, provider errors, unmatched tracks and classifier confidence buckets.
