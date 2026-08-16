@@ -72,5 +72,5 @@ coverage.xml
 # pyenv
 .python-version
 
-# Poetry
-poetry.lock 
+# Local handover and scratch work
+/tmp/

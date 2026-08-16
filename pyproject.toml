@@ -1,42 +1,90 @@
 [tool.poetry]
 name = "sync"
 version = "0.1.0"
-description = "A web app for syncing YouTube playlists with Spotify"
-authors = ["Your Name <your.email@example.com>"]
-packages = [
-    { include = "src" }
-]
+description = "Convert YouTube playlists into reviewable Spotify playlists"
+authors = ["VaughnDV <vaughndevilliers@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/VaughnDV/sync"
+repository = "https://github.com/VaughnDV/sync"
+documentation = "https://github.com/VaughnDV/sync#readme"
+packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-django = "^5.0"
+python = ">=3.11,<3.14"
+django = ">=5.2.12,<6.0"
 psycopg2-binary = "^2.9.9"
 python-dotenv = "^1.0.0"
 social-auth-app-django = "^5.4.0"
 google-api-python-client = "^2.118.0"
-spotipy = "^2.23.0"
-openai = "^1.12.0"
-celery = "^5.3.6"
-redis = "^5.0.1"
-django-crispy-forms = "^2.1"
-crispy-bootstrap5 = "^2024.2"
-httpx = "0.26.0"
-httpcore = "1.0.2"
-requests = "^2.31.0"
-python-social-auth = "^0.3.6"
-uvicorn = "^0.27.1"
-asgiref = "^3.7.2"
-dj-database-url = "^2.1.0"
+spotipy = "^2.25.0"
+openai = "^1.76.0"
+celery = "^5.5.0"
+redis = "^5.2.0"
+django-crispy-forms = "^2.3"
+crispy-bootstrap5 = "^2025.4"
+requests = "^2.32.0"
+uvicorn = "^0.34.0"
+dj-database-url = "^2.3.0"
 pydantic = "^2.11.0"
 pydantic-settings = "^2.10.0"
 cryptography = "^45.0.0"
+structlog = "^25.4.0"
+prometheus-client = "^0.21.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.1.1"
-flake8 = "^7.0.0"
-pytest = "^8.0.0"
-pytest-django = "^4.8.0"
+pytest = "^8.3.0"
+pytest-django = "^4.11.0"
+pytest-cov = "^6.0.0"
+ruff = "^0.11.0"
+mypy = "^1.15.0"
+django-stubs = "^5.2.0"
+pip-audit = "^2.8.0"
+pre-commit = "^4.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api" 
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "sync.settings"
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "--strict-markers --cov=src --cov-report=term-missing --cov-fail-under=60"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = ["src/manage.py", "src/sync/wsgi.py", "src/sync/asgi.py"]
+
+[tool.coverage.report]
+fail_under = 60
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "DJ"]
+ignore = ["DJ001"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+plugins = ["mypy_django_plugin.main"]
+strict = true
+warn_unused_ignores = true
+exclude = ["src/apps/.*/migrations/"]
+
+[[tool.mypy.overrides]]
+module = ["social_django.*", "social_core.*", "spotipy.*", "googleapiclient.*", "httplib2.*", "celery.*", "crispy_forms.*"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "sync.settings"
