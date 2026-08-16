@@ -1,0 +1,19 @@
+{
+  "kind": "youtube#playlistItemListResponse",
+  "requestId": "yt-req-demo-1",
+  "items": [
+    {
+      "snippet": {
+        "title": "Adele - Hello (Official Video)",
+        "resourceId": {"videoId": "vidHello01"}
+      }
+    },
+    {
+      "snippet": {
+        "title": "Radiohead - Creep",
+        "resourceId": {"videoId": "vidCreep01"}
+      }
+    }
+  ],
+  "nextPageToken": null
+}

@@ -1,0 +1,12 @@
+{
+  "tracks": {
+    "items": [
+      {
+        "id": "spHello01",
+        "name": "Hello",
+        "popularity": 90,
+        "artists": [{"name": "Adele"}]
+      }
+    ]
+  }
+}

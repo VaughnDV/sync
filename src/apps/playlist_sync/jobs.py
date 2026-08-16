@@ -123,8 +123,7 @@ def classify_job(
     except SyncError as exc:
         _fail(job, exc)
         return job
-    except Exception as exc:  # noqa: BLE001
-        _fail(job, exc)
+    except Exception:
         raise
 
 
